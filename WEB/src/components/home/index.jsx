@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef ,fileRef } from "react";
 // import { Link, Navigate } from "react-router-dom";
 
 import { Formik, useFormik } from "formik";
@@ -125,9 +125,9 @@ export default function Home(props) {
     console.log("img url: ", url);
     document.querySelector(
       "#previewProductImg"
-    ).innerHTML = `<img width="200px" src="${url}" alt="" id="img"> `;
-    setFieldValue("productImg", e.target.files[0].webkitRelativePath );
-    console.log(e.target.files[0])
+    ).innerHTML = `<img width="200px" src="${url}" alt="" id="img"/> `;
+    setFieldValue("productImg", e.target.files[0]);
+    console.log(e.target.files[0].path)
    };
   return (
     <>
@@ -209,6 +209,7 @@ export default function Home(props) {
                 className="input"
                 type="file"
                 accept="image/*"
+                ref={fileRef}
                 autoComplete="on"
                 id="productPic"
                 placeholder="Product Picture..."
@@ -225,7 +226,6 @@ export default function Home(props) {
                 SUBMIT
               </button>
 
-              <div className="subtitle">by Shehzad</div>
             </form>
           </Box>
         </Modal>
@@ -246,6 +246,9 @@ export default function Home(props) {
               <h1>{eachProduct.name}</h1>
               <h3>{eachProduct.price}</h3>
               <p>{eachProduct.description}</p>
+              {/* <button onClick={()=>{eachProduct.id}}>Delete</button> */}
+              {/* <button onClick={()=>{eachProduct.id}}>Edit</button> */}
+              <hr />
             </div>
           ))}
       {/* <Button variant="contained">

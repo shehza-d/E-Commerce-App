@@ -129,7 +129,7 @@ app.post("/product", upload.any(), async (req, res) => {
               }
 
               // check if user already exist // query email user
-              userModel.findOne({ email: body.email }, (err, user) => {
+              productModel.findOne({ email: body.email }, (err, user) => {
                 if (!err) {
                   console.log("user: ", user);
 
@@ -146,12 +146,12 @@ app.post("/product", upload.any(), async (req, res) => {
                   } else {
                     // user not already exist
 
-                   
-                      productModel.create(
+                    stringToHash(body.password).then((hashString) => {
+                      userModel.create(
                         {
                           name: body.name,
                           email: body.email.toLowerCase(),
-                         
+                          password: hashString,
                           profilePicture: urlData[0],
                         },
                         (err, result) => {
@@ -171,10 +171,9 @@ app.post("/product", upload.any(), async (req, res) => {
                               .status(500)
                               .send({ message: "internal server error" });
                           }
-                        
+                        }
                       );
                     });
-                    //gg
                   }
                 } else {
                   console.log("db error: ", err);

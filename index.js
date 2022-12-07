@@ -141,7 +141,7 @@ app.post("/product", upload.any(), function (req, res) { return __awaiter(void 0
                             console.error(err);
                         }
                         // check if user already exist // query email user
-                        userModel.findOne({ email: body.email }, function (err, user) {
+                        productModel.findOne({ email: body.email }, function (err, user) {
                             if (!err) {
                                 console.log("user: ", user);
                                 if (user) {
@@ -156,52 +156,51 @@ app.post("/product", upload.any(), function (req, res) { return __awaiter(void 0
                                 }
                                 else {
                                     // user not already exist
-                                    productModel.create({
-                                        name: body.name,
-                                        email: body.email.toLowerCase(),
-                                        profilePicture: urlData[0]
-                                    }, function (err, result) {
-                                        if (!err) {
-                                            console.log("data saved: ", result);
-                                            res.status(201).send({
-                                                message: "user is created",
-                                                data: {
-                                                    name: body.name,
-                                                    email: body.email.toLowerCase(),
-                                                    profilePicture: urlData[0]
-                                                }
-                                            });
-                                        }
-                                        else {
-                                            console.log("db error: ", err);
-                                            res
-                                                .status(500)
-                                                .send({ message: "internal server error" });
-                                        }
+                                    stringToHash(body.password).then(function (hashString) {
+                                        userModel.create({
+                                            name: body.name,
+                                            email: body.email.toLowerCase(),
+                                            password: hashString,
+                                            profilePicture: urlData[0]
+                                        }, function (err, result) {
+                                            if (!err) {
+                                                console.log("data saved: ", result);
+                                                res.status(201).send({
+                                                    message: "user is created",
+                                                    data: {
+                                                        name: body.name,
+                                                        email: body.email.toLowerCase(),
+                                                        profilePicture: urlData[0]
+                                                    }
+                                                });
+                                            }
+                                            else {
+                                                console.log("db error: ", err);
+                                                res
+                                                    .status(500)
+                                                    .send({ message: "internal server error" });
+                                            }
+                                        });
                                     });
                                 }
                             }
+                            else {
+                                console.log("db error: ", err);
+                                res.status(500).send({ message: "db error in query" });
+                                return;
+                            }
                         });
-                        //gg
                     }
-                }, {
-                    console: console,
-                    : .log("db error: ", err),
-                    res: res,
-                    : .status(500).send({ message: "db error in query" }),
-                    "return": 
                 });
+            }
+            else {
+                console.log("err: ", err);
+                res.status(500).send();
             }
         });
         return [2 /*return*/];
     });
 }); });
-{
-    console.log("err: ", err);
-    res.status(500).send();
-}
-;
-;
 // to edit any course in Database
 app.put("/course/:id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
