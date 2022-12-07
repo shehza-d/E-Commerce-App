@@ -9,7 +9,7 @@ const app = express();
 const port = process.env.PORT || 3003;
 //middleware configuration
 app.use(express.json());
-app.use(cors()); //origin: ['http://localhost:3000', 'https://ecom-25516.web.app', "*"],
+app.use(cors()); //{origin: ['http://localhost:3000', 'https://ecom-25516.web.app', "*"]},
 
 // https://firebase.google.com/docs/storage/admin/start
 const serviceAccount = {
@@ -27,15 +27,18 @@ const serviceAccount = {
   client_x509_cert_url:
     "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-917lx%40e-commerce-shehzad.iam.gserviceaccount.com",
 };
+// console.log("not avaliable"||process.env.serviceAccountFB);
+if(process.env.serviceAccountFB)console.log("this in env variable",process.env.serviceAccountFB);
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://e-commerce-shehzad.firebaseio.com",
-});
-const bucket = admin.storage().bucket("gs://e-commerce-shehzad.appspot.com");
+// admin.initializeApp({
+//   credential: admin.credential.cert(serviceAccount),
+//   databaseURL: "https://e-commerce-shehzad.firebaseio.com",
+// });
+// const bucket = admin.storage().bucket("gs://e-commerce-shehzad.appspot.com");
 
 //==============================================
 import multer from "multer";
+// new syntax ==== const upload =multer({ dest: './public/data/upload/'})
 const storageConfig = multer.diskStorage({
   // https://www.npmjs.com/package/multer#diskstorage
   destination: "./uploads/",
@@ -84,111 +87,109 @@ app.post("/product", upload.any(), async (req, res) => {
   const body = req.body;
   console.log("body: ", body);
 
-  console.log("file: ", req.files[0]);
+  // console.log("file: ", req.files[0]);
 
-  if (!body.name || !body.email || !body.password) {
-    res.status(400).send(
-      `required fields missing, request example: 
-              {
-                  "name": "John",
-                  "email": "abc@abc.com",
-                  "password": "12345"
-              }`
-    );
-    return;
-  }
+  // if (!body.name || !body.email || !body.password) {
+  //   res.status(400).send(
+  //     `required fields missing, request example: 
+  //             {
+  //                 "name": "John",
+  //                 "email": "abc@abc.com",
+  //                 "password": "12345"
+  //             }`
+  //   );
+  //   return;
+  // }
 
   // https://googleapis.dev/nodejs/storage/latest/Bucket.html#upload-examples
-  bucket.upload(
-    req.files[0].path,
-    {
-      destination: `profilePhotos/${req.files[0].filename}`, // give destination name if you want to give a certain name to file in bucket, include date to make name unique otherwise it will replace previous file with the same name
-    },
-    function (err, file, apiResponse) {
-      if (!err) {
-        // console.log("api resp: ", apiResponse);
+  // bucket.upload(
+  //   req.files[0].path,
+  //   {
+  //     destination: `profilePhotos/${req.files[0].filename}`, // give destination name if you want to give a certain name to file in bucket, include date to make name unique otherwise it will replace previous file with the same name
+  //   },
+  //   function (err, file, apiResponse) {
+  //     if (!err) {
+  //       // console.log("api resp: ", apiResponse);
 
-        // https://googleapis.dev/nodejs/storage/latest/Bucket.html#getSignedUrl
-        file
-          .getSignedUrl({
-            action: "read",
-            expires: "03-09-2491",
-          })
-          .then((urlData, err) => {
-            if (!err) {
-              console.log("public downloadable url: ", urlData[0]); // this is public downloadable url
+  //       // https://googleapis.dev/nodejs/storage/latest/Bucket.html#getSignedUrl
+  //       file
+  //         .getSignedUrl({
+  //           action: "read",
+  //           expires: "03-09-2491",
+  //         })
+  //         .then((urlData, err) => {
+  //           if (!err) {
+  //             console.log("public downloadable url: ", urlData[0]); // this is public downloadable url
 
-              // delete file from folder before sending response back to client (optional but recommended)
-              // optional because it is gonna delete automatically sooner or later
-              // recommended because you may run out of space if you dont do so, and if your files are sensitive it is simply not safe in server folder
-              try {
-                fs.unlinkSync(req.files[0].path);
-                //file removed
-              } catch (err) {
-                console.error(err);
-              }
+  //             // delete file from folder before sending response back to client (optional but recommended)
+  //             // optional because it is gonna delete automatically sooner or later
+  //             // recommended because you may run out of space if you dont do so, and if your files are sensitive it is simply not safe in server folder
+  //             try {
+  //               fs.unlinkSync(req.files[0].path);
+  //               //file removed
+  //             } catch (err) {
+  //               console.error(err);
+  //             }
 
-              // check if user already exist // query email user
-              productModel.findOne({ email: body.email }, (err, user) => {
-                if (!err) {
-                  console.log("user: ", user);
+  //             // check if user already exist // query email user
+  //             productModel.findOne({ email: body.email }, (err, user) => {
+  //               if (!err) {
+  //                 console.log("user: ", user);
 
-                  if (user) {
-                    // user already exist
-                    console.log("user already exist: ", user);
-                    res
-                      .status(400)
-                      .send({
-                        message:
-                          "user already exist,, please try a different email",
-                      });
-                    return;
-                  } else {
-                    // user not already exist
+  //                 if (user) {
+  //                   // user already exist
+  //                   console.log("user already exist: ", user);
+  //                   res.status(400).send({
+  //                     message:
+  //                       "user already exist,, please try a different email",
+  //                   });
+  //                   return;
+  //                 } else {
+  //                   // user not already exist
 
-                    stringToHash(body.password).then((hashString) => {
-                      userModel.create(
-                        {
-                          name: body.name,
-                          email: body.email.toLowerCase(),
-                          password: hashString,
-                          profilePicture: urlData[0],
-                        },
-                        (err, result) => {
-                          if (!err) {
-                            console.log("data saved: ", result);
-                            res.status(201).send({
-                              message: "user is created",
-                              data: {
-                                name: body.name,
-                                email: body.email.toLowerCase(),
-                                profilePicture: urlData[0],
-                              },
-                            });
-                          } else {
-                            console.log("db error: ", err);
-                            res
-                              .status(500)
-                              .send({ message: "internal server error" });
-                          }
-                        }
-                      );
-                    });
-                  }
-                } else {
-                  console.log("db error: ", err);
-                  res.status(500).send({ message: "db error in query" });
-                  return;
-                }
-              });
-            }
-          });
-      } else {
-        console.log("err: ", err);
-        res.status(500).send();
-      }
-    }
-  );
+  //                   stringToHash(body.password).then((hashString) => {
+  //                     userModel.create(
+  //                       {
+  //                         name: body.name,
+  //                         email: body.email.toLowerCase(),
+  //                         password: hashString,
+  //                         profilePicture: urlData[0],
+  //                       },
+  //                       (err, result) => {
+  //                         if (!err) {
+  //                           console.log("data saved: ", result);
+  //                           res.status(201).send({
+  //                             message: "user is created",
+  //                             data: {
+  //                               name: body.name,
+  //                               email: body.email.toLowerCase(),
+  //                               profilePicture: urlData[0],
+  //                             },
+  //                           });
+  //                         } else {
+  //                           console.log("db error: ", err);
+  //                           res
+  //                             .status(500)
+  //                             .send({ message: "internal server error" });
+  //                         }
+  //                       }
+  //                     );
+  //                   });
+  //                 }
+  //               } else {
+  //                 console.log("db error: ", err);
+  //                 res.status(500).send({ message: "db error in query" });
+  //                 return;
+  //               }
+  //             });
+  //           }
+  //         });
+  //     } else {
+  //       console.log("err: ", err);
+  //       res.status(500).send();
+  //     }
+  //   }
+  // );
 
   // await productModel.create({ course: req.body.text }, (err, saved) => {
   //   if (!err) {
@@ -257,13 +258,14 @@ app.delete("/courses", (req, res) => {
 app.listen(port, (): void => {
   console.log(`Example app listening on port ${port}`);
 });
+console.log(process.env.MongoDBURI);
 
 //MongoDB
 const dbURI =
   process.env.MongoDBURI ||
   "mongodb+srv://shehza-d:web123@cluster0.egqvqca.mongodb.net/ecomme?retryWrites=true&w=majority";
-await mongoose.connect(dbURI);
-
+ mongoose.connect(dbURI);
+//await removed
 // //for status of DB
 // ////////////////mongodb connected disconnected events///////////
 // mongoose.connection.on(

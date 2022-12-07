@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useRef ,fileRef } from "react";
+import React, { useState, useEffect, useRef, fileRef } from "react";
 // import { Link, Navigate } from "react-router-dom";
 
 import { Formik, useFormik } from "formik";
@@ -29,7 +29,8 @@ const style = {
   boxShadow: 24,
   p: 4,
 };
-const baseURI = "http://localhost:3004";
+const baseURI = `http://localhost:3003`;
+// const baseURI =`https://e-commerce-store-shehzad.up.railway.app/`
 
 export default function Home(props) {
   // Material UI
@@ -103,13 +104,34 @@ export default function Home(props) {
     }),
 
     onSubmit: async (values) => {
+      const productImg = document.querySelector("#productImg");
+
+      //to send form body instead of JSON body
+      let formData = new FormData(); // https://developer.mozilla.org/en-US/docs/Web/API/FormData/append#syntax
+      formData.append("productName", values.productName); // this is how you add some text data along with file
+      formData.append("productDescription", values.productDescription);
+      formData.append("productPrice", values.productPrice);
+      formData.append("productImg", productImg.files[0]); // file input is for browser only, use fs to read file in nodejs client
+
+      console.log(productImg.files[0]);
       console.log(values);
       try {
-        await axios.post(`${baseURI}/product`, {
-          name: values.productName,
-          price: values.productPrice,
-          description: values.productDescription,
+        const res = await axios({    // you may use any other library to send from-data request to server, I used axios for no specific reason, I used it just because I'm using it these days, earlier I was using npm request module but last week it get fully depricated, such a bad news.
+          method: "post",
+          url: `${baseURI}/product`,
+          data: formData,
+          headers: { "Content-Type": "multipart/form-data" },
+          // withCredentials: true
         });
+
+        console.log(`upload Success` + res.data);
+        setToggleRefresh(!toggleRefresh);
+
+        // axios.post(`${baseURI}/product`, {
+        //   name: values.productName,
+        //   price: values.productPrice,
+        //   description: values.productDescription,
+        // });
       } catch (err) {
         console.log(err);
       }
@@ -118,17 +140,16 @@ export default function Home(props) {
     },
   });
   const handlePicChange = (e) => {
-  
     // to display imager instantly on screen
-    const profilePictureInput = document.querySelector("#productPic");
+    const profilePictureInput = document.querySelector("#productImg");
     const url = URL.createObjectURL(profilePictureInput.files[0]);
     console.log("img url: ", url);
     document.querySelector(
       "#previewProductImg"
     ).innerHTML = `<img width="200px" src="${url}" alt="" id="img"/> `;
     setFieldValue("productImg", e.target.files[0]);
-    console.log(e.target.files[0].path)
-   };
+    console.log(e.target.files);
+  };
   return (
     <>
       <nav>
@@ -202,7 +223,7 @@ export default function Home(props) {
                 <span className="errorSpan">{errors.productPrice}</span>
               ) : null}
 
-              <label htmlFor="productPic" className="placeholder">
+              <label htmlFor="productImg" className="placeholder">
                 Product Picture
               </label>
               <input
@@ -211,9 +232,9 @@ export default function Home(props) {
                 accept="image/*"
                 ref={fileRef}
                 autoComplete="on"
-                id="productPic"
+                id="productImg"
                 placeholder="Product Picture..."
-                // name="productPic"
+                // name="productImg"
                 // value={values.productImg}
                 onChange={handlePicChange}
                 // onBlur={handleBlur}
@@ -225,7 +246,6 @@ export default function Home(props) {
               <button type="submit" className="submitBtn">
                 SUBMIT
               </button>
-
             </form>
           </Box>
         </Modal>
