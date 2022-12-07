@@ -1,18 +1,17 @@
-import React from "react";
+import React,{ useState } from "react";
 import "./index.css";
 // import { Link } from "react-router-dom";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import "./index.css";
-import { useState } from "react";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 // import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import axios from "axios";
 // import Button from '@mui/material/Button';
-import DeleteIcon from '@mui/icons-material/Delete';
-import SendIcon from '@mui/icons-material/Send';
+// import DeleteIcon from '@mui/icons-material/Delete';
+// import SendIcon from '@mui/icons-material/Send';
 // import Stack from '@mui/material/Stack';
 
 const style = {
@@ -78,7 +77,9 @@ const Courses = () => {
       onSubmit: async (values) => {
         console.log(values.courseName);
         try {
-          await axios.post(" http://localhost:3002/course",{course: values.courseName});
+          await axios.post(" http://localhost:3002/course", {
+            course: values.courseName,
+          });
         } catch (err) {
           console.log(err);
         }
@@ -227,12 +228,12 @@ const Courses = () => {
           </form>
         </Box>
       </Modal>
-      <Button variant="outlined" startIcon={<DeleteIcon />}>
-  Delete
-</Button>
-<Button variant="contained" endIcon={<SendIcon />}>
-  Send
-</Button>
+      {/* <Button variant="outlined" startIcon={<DeleteIcon />}>
+        Delete
+      </Button>
+      <Button variant="contained" endIcon={<SendIcon />}>
+        Send
+      </Button> */}
     </>
   );
 };
