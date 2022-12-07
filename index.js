@@ -75,7 +75,7 @@ app.post("/product", upload.any(), async (req, res) => {
     // console.log("file: ", req.files[0]);
     // if (!body.name || !body.email || !body.password) {
     //   res.status(400).send(
-    //     `required fields missing, request example: 
+    //     `required fields missing, request example:
     //             {
     //                 "name": "John",
     //                 "email": "abc@abc.com",
@@ -168,18 +168,23 @@ app.post("/product", upload.any(), async (req, res) => {
     //     }
     //   }
     // );
-    // await productModel.create({ course: req.body.text }, (err, saved) => {
-    //   if (!err) {
-    //     console.log("saved");
-    //     res.send({
-    //       message: "your data is saved",
-    //     });
-    //   } else {
-    //     res.status(500).send({
-    //       message: "error hy koi server ma",
-    //     });
-    //   }
-    // });
+    await productModel.create({
+        productName: body.productName,
+        productDescription: body.productDescription,
+        productPrice: body.productPrice,
+    }, (err, saved) => {
+        if (!err) {
+            console.log("saved");
+            res.send({
+                message: "your data is saved",
+            });
+        }
+        else {
+            res.status(500).send({
+                message: "error hy koi server ma",
+            });
+        }
+    });
 });
 // to edit any course in Database
 app.put("/course/:id", async (req, res) => {

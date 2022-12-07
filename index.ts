@@ -28,7 +28,8 @@ const serviceAccount = {
     "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-917lx%40e-commerce-shehzad.iam.gserviceaccount.com",
 };
 // console.log("not avaliable"||process.env.serviceAccountFB);
-if(process.env.serviceAccountFB)console.log("this in env variable",process.env.serviceAccountFB);
+if (process.env.serviceAccountFB)
+  console.log("this in env variable", process.env.serviceAccountFB);
 
 // admin.initializeApp({
 //   credential: admin.credential.cert(serviceAccount),
@@ -91,7 +92,7 @@ app.post("/product", upload.any(), async (req, res) => {
 
   // if (!body.name || !body.email || !body.password) {
   //   res.status(400).send(
-  //     `required fields missing, request example: 
+  //     `required fields missing, request example:
   //             {
   //                 "name": "John",
   //                 "email": "abc@abc.com",
@@ -191,18 +192,25 @@ app.post("/product", upload.any(), async (req, res) => {
   //   }
   // );
 
-  // await productModel.create({ course: req.body.text }, (err, saved) => {
-  //   if (!err) {
-  //     console.log("saved");
-  //     res.send({
-  //       message: "your data is saved",
-  //     });
-  //   } else {
-  //     res.status(500).send({
-  //       message: "error hy koi server ma",
-  //     });
-  //   }
-  // });
+  await productModel.create(
+    {
+      productName: body.productName,
+      productDescription: body.productDescription,
+      productPrice: body.productPrice,
+    },
+    (err, saved) => {
+      if (!err) {
+        console.log("saved");
+        res.send({
+          message: "your data is saved",
+        });
+      } else {
+        res.status(500).send({
+          message: "error hy koi server ma",
+        });
+      }
+    }
+  );
 });
 
 // to edit any course in Database
@@ -264,7 +272,7 @@ console.log(process.env.MongoDBURI);
 const dbURI =
   process.env.MongoDBURI ||
   "mongodb+srv://shehza-d:web123@cluster0.egqvqca.mongodb.net/ecomme?retryWrites=true&w=majority";
- mongoose.connect(dbURI);
+mongoose.connect(dbURI);
 //await removed
 // //for status of DB
 // ////////////////mongodb connected disconnected events///////////
