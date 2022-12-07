@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Link, Navigate } from "react-router-dom";
+// import { Link, Navigate } from "react-router-dom";
 
-import { useFormik } from "formik";
+import { Formik, useFormik } from "formik";
 import * as yup from "yup";
 import "./index.css";
 import axios from "axios";
@@ -30,6 +30,7 @@ const style = {
   p: 4,
 };
 const baseURI = "http://localhost:3004";
+
 export default function Home(props) {
   // Material UI
   const [open, setOpen] = useState(false);
@@ -49,66 +50,89 @@ export default function Home(props) {
   }, [toggleRefresh]);
 
   //formik validation
-  const { values, handleChange, handleBlur, handleSubmit, touched, errors } =
-    useFormik({
-      initialValues: {
-        productName: "",
-        productDescription: "",
-        productPrice: "",
-        productImg: "",
-      },
+  const {
+    values,
+    handleChange,
+    handleBlur,
+    handleSubmit,
+    touched,
+    errors,
+    setFieldValue,
+  } = useFormik({
+    initialValues: {
+      productName: "",
+      productDescription: "",
+      productPrice: "",
+      productImg: "",
+    },
 
-      validationSchema: yup.object({
-        productName: yup
-          .string("Enter your Product Name")
-          // .email("Enter your email")
-          .required("Product Name is required")
-          .min(3, "Please enter more then 3 characters ")
-          .max(35, "Please enter within 35 characters"),
-        productDescription: yup
-          .string("Enter your classDays")
-          .required("classDays is required")
-          .min(3, "Please enter more then 3 characters ")
-          .max(60, "Please enter within 60 characters "),
-        productPrice: yup
-          .number("Enter Product Price in number")
-          .required("Product Price is required")
-          .min(1, "Product Price can't be less then 1")
-          .max(20000000, "Product Price can't be greater then 200")
-          .positive("Product Price can't be negative")
-          .integer("Enter Product Price without decimal"),
-        createdOn: yup.date().default(() => new Date()),
-      }),
+    validationSchema: yup.object({
+      productName: yup
+        .string("Enter your Product Name")
+        // .email("Enter your email")
+        .required("Product Name is required")
+        .min(3, "Please enter more then 3 characters ")
+        .max(35, "Please enter within 35 characters"),
+      productDescription: yup
+        .string("Enter your classDays")
+        .required("classDays is required")
+        .min(3, "Please enter more then 3 characters ")
+        .max(60, "Please enter within 60 characters "),
+      productPrice: yup
+        .number("Enter Product Price in number")
+        .required("Product Price is required")
+        .min(1, "Product Price can't be less then 1")
+        .max(20000000, "Product Price can't be greater then 200")
+        .positive("Product Price can't be negative")
+        .integer("Enter Product Price without decimal"),
+      // productImg: yup
+      //   //  .string()
+      //   .test(
+      //     "FILE_SIZE",
+      //     "Too large image size",
+      //     (value) => value && value.size < 3600 * 3600
+      //   )
+      //   .test(
+      //     "FILE_TYPE",
+      //     "Invalid image type",
+      //     (value) =>
+      //       value &&
+      //       ["image/jpeg", "image/png", "image/jpg"].includes(value.type)
+      //   ),
+      createdOn: yup.date().default(() => new Date()),
+    }),
 
-      onSubmit: async (values) => {
-        console.log(values);
-        try {
-          await axios.post(`${baseURI}/product`, {
-            name: values.productName,
-            price: values.productPrice,
-            description: values.productDescription,
-          });
-        } catch (err) {
-          console.log(err);
-        }
-        //do something like there you can call API or send data to firebase
-        // if (errors) console.log("error is", errors);
-      },
-    });
-  const handlePicChange = () => {
-    ////// to display imager instantly on screen
+    onSubmit: async (values) => {
+      console.log(values);
+      try {
+        await axios.post(`${baseURI}/product`, {
+          name: values.productName,
+          price: values.productPrice,
+          description: values.productDescription,
+        });
+      } catch (err) {
+        console.log(err);
+      }
+      //do something like there you can call API or send data to firebase
+      // if (errors) console.log("error is", errors);
+    },
+  });
+  const handlePicChange = (e) => {
+  
+    // to display imager instantly on screen
     const profilePictureInput = document.querySelector("#productPic");
     const url = URL.createObjectURL(profilePictureInput.files[0]);
-    console.log("url: ", url);
+    console.log("img url: ", url);
     document.querySelector(
       "#previewProductImg"
     ).innerHTML = `<img width="200px" src="${url}" alt="" id="img"> `;
-  };
+    setFieldValue("productImg", e.target.files[0].webkitRelativePath );
+    console.log(e.target.files[0])
+   };
   return (
     <>
       <nav>
         <h1>Hello 1</h1>
-        {console.log(productData)}
         <Button variant="contained" onClick={handleOpenClose}>
           Add Product
         </Button>
@@ -170,7 +194,7 @@ export default function Home(props) {
                 id="productPrice"
                 placeholder="Your Product Price..."
                 name="productPrice"
-                value={values.productPrice}
+                // value={values.productPrice}
                 onChange={handleChange}
                 onBlur={handleBlur}
               />
@@ -188,8 +212,8 @@ export default function Home(props) {
                 autoComplete="on"
                 id="productPic"
                 placeholder="Product Picture..."
-                name="productPic"
-                // value={values.courseName}
+                // name="productPic"
+                // value={values.productImg}
                 onChange={handlePicChange}
                 // onBlur={handleBlur}
               />
@@ -214,16 +238,16 @@ export default function Home(props) {
         </div>
       ) : null}
       {err ? <div className="errorr">{err}</div> : ""}
-      
-      {//console.log(productData);
-      productData?.map((eachProduct) => (
-        <div className="productDataDiv">
-          <h1>{eachProduct.name}</h1>
-          <h3>{eachProduct.price}</h3>
-          <p>{eachProduct.description}</p>
-          
-        </div>
-      ))}
+
+      {!productData
+        ? null
+        : productData?.map((eachProduct, index) => (
+            <div className="productDataDiv" key={index}>
+              <h1>{eachProduct.name}</h1>
+              <h3>{eachProduct.price}</h3>
+              <p>{eachProduct.description}</p>
+            </div>
+          ))}
       {/* <Button variant="contained">
           <Link to="/attendance">Attendance</Link>
         </Button>
