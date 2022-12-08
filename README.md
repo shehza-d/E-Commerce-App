@@ -1,5 +1,3 @@
-# HACKATHON-1
-Mini Hackathon for SMIT
+# E commerce Store 
 
-building attendance system in MERN Stack
-https://hackathon-1-production.up.railway.app/
+building E commerce app in MERN Stack with image upload to firebase Storage Bucket 
