@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import fs from "fs";
 import admin from "firebase-admin";
 
+
 const app = express();
 const port = process.env.PORT || 3003;
 //middleware configuration
@@ -62,10 +63,10 @@ const productModel = mongoose.model(
     createdDate: { type: Date, default: Date.now },
   })
 );
-
-app.get("/", (req: express.Request, res: express.Response): void => {
-  res.send(`Server for Shehzad e-commerce App!`);
-});
+// To remove 
+//app.get("/", (req: express.Request, res: express.Response): void => {
+ // res.send(`Server for Shehzad e-commerce App!`);
+//});
 //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ this is for courses $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 //to see all product list from database
 app.get("/products", (req, res) => {
@@ -261,7 +262,9 @@ app.delete("/courses", (req, res) => {
 // });
 
 //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ this is for Students $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-
+const __dirname = path.resolve(); 
+ app.use("/", express.static(path.join(__dirname, "./WEB/build"))); 
+ app.use("*", express.static(path.join(__dirname, "./WEB/build")));
 //END
 app.listen(port, (): void => {
   console.log(`Example app listening on port ${port}`);
