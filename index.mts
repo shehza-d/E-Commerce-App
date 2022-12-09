@@ -275,7 +275,7 @@ console.log(process.env.MongoDBURI);
 const dbURI =
   process.env.MongoDBURI ||
   "mongodb+srv://shehza-d:web123@cluster0.egqvqca.mongodb.net/ecomme?retryWrites=true&w=majority";
-mongoose.connect(dbURI);
+await mongoose.connect(dbURI);
 //await removed
 // //for status of DB
 // ////////////////mongodb connected disconnected events///////////
