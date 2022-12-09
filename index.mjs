@@ -2,6 +2,7 @@ import express from "express";
 import path from "path";
 import cors from "cors";
 import mongoose from "mongoose";
+import fs from "fs";
 import admin from "firebase-admin";
 const app = express();
 const port = process.env.PORT || 3003;
@@ -9,8 +10,9 @@ const port = process.env.PORT || 3003;
 app.use(express.json());
 app.use(cors()); //{origin: ['http://localhost:3000', 'https://ecom-25516.web.app', "*"]},
 // https://firebase.google.com/docs/storage/admin/start
-const serviceAccount = // JSON.parse(process.env.serviceAccountFB) || 
- {
+const serviceAccount = 
+// JSON.parse(process.env.serviceAccountFB) ||
+{
     type: "service_account",
     project_id: "e-commerce-shehzad",
     private_key_id: "acd1fac7c0b01bb7dd4194ef07d4508558106223",
@@ -51,7 +53,7 @@ const productModel = mongoose.model("productSchema", new mongoose.Schema({
     // classID: String,
     createdDate: { type: Date, default: Date.now },
 }));
-// To remove 
+// To remove
 //app.get("/", (req: express.Request, res: express.Response): void => {
 // res.send(`Server for Shehzad e-commerce App!`);
 //});
@@ -75,8 +77,8 @@ app.get("/products", (req, res) => {
 //to add new product in Database
 app.post("/product", upload.any(), async (req, res) => {
     const body = req.body;
-    console.log("body: ", body);
-    // console.log("file: ", req.files[0]);
+    // console.log("body: ", body);
+    console.log("file: ", req.files[0]);
     // if (!body.name || !body.email || !body.password) {
     //   res.status(400).send(
     //     `required fields missing, request example:
@@ -88,6 +90,57 @@ app.post("/product", upload.any(), async (req, res) => {
     //   );
     //   return;
     // }
+    // https://googleapis.dev/nodejs/storage/latest/Bucket.html#upload-examples
+    bucket.upload(req.files[0].path, {
+        destination: `productPhotos/${new Date().getTime()}-${req.files[0].originalname}`, // give destination name if you want to give a certain name to file in bucket, include date to make name unique otherwise it will replace previous file with the same name
+    }, async (err, file, apiResponse) => {
+        if (!err) {
+            // console.log("api resp: ", apiResponse);
+            // https://googleapis.dev/nodejs/storage/latest/Bucket.html#getSignedUrl
+            file
+                .getSignedUrl({
+                action: "read",
+                expires: "03-09-2491",
+            })
+                .then(async (urlData, err) => {
+                if (!err) {
+                    console.log("public downloadable url: ", urlData[0]); // this is public downloadable url
+                    // // delete file from folder before sending response back to client (optional but recommended)
+                    // // optional because it is gonna delete automatically sooner or later
+                    // // recommended because you may run out of space if you dont do so, and if your files are sensitive it is simply not safe in server folder
+                    try {
+                        fs.unlinkSync(req.files[0].path); //file removed
+                    }
+                    catch (err) {
+                        console.error(err);
+                    }
+                    // res.send("Ok");
+                    await productModel.create({
+                        productName: body.productName,
+                        productDescription: body.productDescription,
+                        productPrice: body.productPrice,
+                        productImg: urlData[0]
+                    }, (err, saved) => {
+                        if (!err) {
+                            console.log("saved");
+                            res.send({
+                                message: "Your data is saved Successfully",
+                            });
+                        }
+                        else {
+                            res.status(500).send({
+                                message: "error hy koi server ma",
+                            });
+                        }
+                    });
+                }
+            });
+        }
+        else {
+            console.log("err: ", err);
+            res.status(500).send();
+        }
+    });
     // https://googleapis.dev/nodejs/storage/latest/Bucket.html#upload-examples
     // bucket.upload(
     //   req.files[0].path,
@@ -172,23 +225,6 @@ app.post("/product", upload.any(), async (req, res) => {
     //     }
     //   }
     // );
-    await productModel.create({
-        productName: body.productName,
-        productDescription: body.productDescription,
-        productPrice: body.productPrice,
-    }, (err, saved) => {
-        if (!err) {
-            console.log("saved");
-            res.send({
-                message: "your data is saved",
-            });
-        }
-        else {
-            res.status(500).send({
-                message: "error hy koi server ma",
-            });
-        }
-    });
 });
 // to edit any course in Database
 app.put("/course/:id", async (req, res) => {

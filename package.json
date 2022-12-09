@@ -2,12 +2,12 @@
   "name": "hackathon-1",
   "version": "1.0.0",
   "description": "my work",
-  "main": "index.js",
+  "main": "index.mjs",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.mjs",
-    "dev": "node --watch index.mjs"
+    "dev": "nodemon index.mjs"
   },
   "repository": {
     "type": "git",
@@ -32,6 +32,7 @@
     "@types/mongodb": "^4.0.7",
     "@types/mongoose": "^5.11.97",
     "@types/multer": "^1.4.7",
-    "@types/node": "^18.11.11"
+    "@types/node": "^18.11.11",
+    "nodemon": "^2.0.20"
   }
 }

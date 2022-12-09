@@ -17,6 +17,11 @@ import Modal from "@mui/material/Modal";
 //   getAuth,
 // } from "firebase/auth";
 // import { auth } from "./firebase-config";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
+
 
 const style = {
   position: "absolute",
@@ -134,9 +139,10 @@ export default function Home(props) {
           // withCredentials: true
         });
 
-        console.log(`upload Success` + res.data);
+        console.log(`upload Success  ` + res.data.message)
+        toast(`${res.data.message}`);
         setToggleRefresh(!toggleRefresh);
-
+        handleOpenClose()
         // axios.post(`${baseURI}/product`, {
         //   name: values.productName,
         //   price: values.productPrice,
@@ -162,6 +168,7 @@ export default function Home(props) {
   };
   return (
     <>
+     <ToastContainer />
       <nav>
         <h1>Hello 1</h1>
         <Button variant="contained" onClick={handleOpenClose}>
@@ -276,6 +283,7 @@ export default function Home(props) {
               <h1>product Name: {eachProduct.productName}</h1>
               <h3>{eachProduct.productPrice}</h3>
               <p>{eachProduct.productDescription}</p>
+            <img src={eachProduct.productImg} alt="productImg" width="200px" height="200px"/>
               {/* <button onClick={()=>{eachProduct.id}}>Delete</button> */}
               {/* <button onClick={()=>{eachProduct.id}}>Edit</button> */}
               <hr />
