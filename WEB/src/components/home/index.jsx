@@ -49,6 +49,8 @@ export default function Home(props) {
 
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);//////
+  const [editingProduct, setEditingProduct] = useState(false);//////
   const [productData, setProductData] = useState([]);
   const [toggleRefresh, setToggleRefresh] = useState(true);
 
@@ -95,8 +97,8 @@ export default function Home(props) {
         .required("Product Price is required")
         .min(1, "Product Price can't be less then 1")
         .max(20000000, "Product Price can't be greater then 200")
-        .positive("Product Price can't be negative")
-        .integer("Enter Product Price without decimal"),
+        .positive("Product Price can't be negative"),
+        // .integer("Enter Product Price without decimal"),
       // productImg: yup
       //   //  .string()
       //   .test(
@@ -152,6 +154,26 @@ export default function Home(props) {
       // if (errors) console.log("error is", errors);
     },
   });
+const deleteProduct =async (id)=>{
+  try {
+    const res = await axios({
+                          // you may use any other library to send from-data request to server, I used axios for no specific reason, I used it just because I'm using it these days, earlier I was using npm request module but last week it get fully depricated, such a bad news.
+      method: "post",
+      url: `${baseURI}/product`,
+      data: formData,
+      headers: { "Content-Type": "multipart/form-data" },
+      // withCredentials: true
+    });
+  } catch (err) {
+    console.log(err);
+    toast(`Image not found ${err.message}`)
+  }
+}
+
+const editMode=(product)=>{
+  setIsEditMode(!isEditMode)
+setEditingProduct(product)
+}
   const handlePicChange = (e) => {
     // to display imager instantly on screen
     const profilePictureInput = document.querySelector("#productImg");
@@ -286,8 +308,9 @@ export default function Home(props) {
                 width="200px"
                 height="200px"
               />
-              {/* <button onClick={()=>{eachProduct.id}}>Delete</button> */}
+              <button onClick={()=>deleteProduct(eachProduct.id)}>Delete</button>
               {/* <button onClick={()=>{eachProduct.id}}>Edit</button> */}
+              {/* {()} */}
               <hr />
             </div>
           ))}
