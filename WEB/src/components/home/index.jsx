@@ -231,7 +231,7 @@ export default function Home(props) {
                 className="input"
                 type="file"
                 accept="image/*"
-                ref={fileRef}
+                // ref={fileRef}
                 autoComplete="on"
                 id="productImg"
                 placeholder="Product Picture..."
