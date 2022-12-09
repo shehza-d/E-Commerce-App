@@ -29,8 +29,17 @@ const style = {
   boxShadow: 24,
   p: 4,
 };
+
+
+let baseURI = "";
+if (window.location.href.split(":")[0] === "http") {
+  baseURI = `http://localhost:3003`;
+} else {
+  baseURI = `https://e-commerce-store-shehzad.up.railway.app`;
+}
 // const baseURI = `http://localhost:3003`;
-const baseURI =`https://e-commerce-store-shehzad.up.railway.app`
+// const baseURI =`https://e-commerce-store-shehzad.up.railway.app`
+
 
 export default function Home(props) {
   // Material UI
@@ -264,7 +273,7 @@ export default function Home(props) {
         ? null
         : productData?.map((eachProduct, index) => (
             <div className="productDataDiv" key={index}>
-              <h1>{eachProduct.productName}</h1>
+              <h1>product Name: {eachProduct.productName}</h1>
               <h3>{eachProduct.productPrice}</h3>
               <p>{eachProduct.productDescription}</p>
               {/* <button onClick={()=>{eachProduct.id}}>Delete</button> */}
