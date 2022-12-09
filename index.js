@@ -1,4 +1,5 @@
 import express from "express";
+import path from "path";
 import cors from "cors";
 import mongoose from "mongoose";
 const app = express();
@@ -7,7 +8,7 @@ const port = process.env.PORT || 3003;
 app.use(express.json());
 app.use(cors()); //{origin: ['http://localhost:3000', 'https://ecom-25516.web.app', "*"]},
 // https://firebase.google.com/docs/storage/admin/start
-const serviceAccount = {
+const serviceAccount = JSON.parse(process.env.serviceAccountFB) || {
     type: "service_account",
     project_id: "e-commerce-shehzad",
     private_key_id: "acd1fac7c0b01bb7dd4194ef07d4508558106223",
@@ -48,9 +49,10 @@ const productModel = mongoose.model("productSchema", new mongoose.Schema({
     // classID: String,
     createdDate: { type: Date, default: Date.now },
 }));
-app.get("/", (req, res) => {
-    res.send(`Server for Shehzad e-commerce App!`);
-});
+// To remove 
+//app.get("/", (req: express.Request, res: express.Response): void => {
+// res.send(`Server for Shehzad e-commerce App!`);
+//});
 //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ this is for courses $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 //to see all product list from database
 app.get("/products", (req, res) => {
@@ -230,6 +232,9 @@ app.delete("/courses", (req, res) => {
 //   });
 // });
 //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ this is for Students $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+const __dirname = path.resolve();
+app.use("/", express.static(path.join(__dirname, "./WEB/build")));
+app.use("*", express.static(path.join(__dirname, "./WEB/build")));
 //END
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);
