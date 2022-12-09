@@ -7,7 +7,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.mjs",
-    "dev": "nodemon index.mjs"
+    "dev": "node --watch index.mjs"
   },
   "repository": {
     "type": "git",

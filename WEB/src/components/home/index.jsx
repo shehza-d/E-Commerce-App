@@ -17,10 +17,8 @@ import Modal from "@mui/material/Modal";
 //   getAuth,
 // } from "firebase/auth";
 // import { auth } from "./firebase-config";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 
 const style = {
@@ -35,7 +33,6 @@ const style = {
   p: 4,
 };
 
-
 let baseURI = "";
 if (window.location.href.split(":")[0] === "http") {
   baseURI = `http://localhost:3003`;
@@ -44,7 +41,6 @@ if (window.location.href.split(":")[0] === "http") {
 }
 // const baseURI = `http://localhost:3003`;
 // const baseURI =`https://e-commerce-store-shehzad.up.railway.app`
-
 
 export default function Home(props) {
   // Material UI
@@ -61,7 +57,7 @@ export default function Home(props) {
     (async () => {
       const response = await axios.get(`${baseURI}/products`);
       setProductData(response.data.data);
-      console.log(response.data.data)
+      console.log(response.data.data);
     })();
   }, [toggleRefresh]);
 
@@ -119,6 +115,7 @@ export default function Home(props) {
     }),
 
     onSubmit: async (values) => {
+      // console.log(values);//values of formik
       const productImg = document.querySelector("#productImg");
 
       //to send form body instead of JSON body
@@ -127,11 +124,10 @@ export default function Home(props) {
       formData.append("productDescription", values.productDescription);
       formData.append("productPrice", values.productPrice);
       formData.append("productImg", productImg.files[0]); // file input is for browser only, use fs to read file in nodejs client
-
-      console.log(productImg.files[0]);
-      console.log(values);
+      // console.log(productImg.files[0]);//image data
       try {
-        const res = await axios({    // you may use any other library to send from-data request to server, I used axios for no specific reason, I used it just because I'm using it these days, earlier I was using npm request module but last week it get fully depricated, such a bad news.
+        const res = await axios({
+          // you may use any other library to send from-data request to server, I used axios for no specific reason, I used it just because I'm using it these days, earlier I was using npm request module but last week it get fully depricated, such a bad news.
           method: "post",
           url: `${baseURI}/product`,
           data: formData,
@@ -139,10 +135,10 @@ export default function Home(props) {
           // withCredentials: true
         });
 
-        console.log(`upload Success  ` + res.data.message)
-        toast(`${res.data.message}`);
+        console.log(`upload Success  ` + res.data.message);
+        toast(`${res.data.message}`);//https://www.npmjs.com/package/react-toastify
         setToggleRefresh(!toggleRefresh);
-        handleOpenClose()
+        handleOpenClose();
         // axios.post(`${baseURI}/product`, {
         //   name: values.productName,
         //   price: values.productPrice,
@@ -150,6 +146,7 @@ export default function Home(props) {
         // });
       } catch (err) {
         console.log(err);
+        toast(`Image not found ${err.message}`)
       }
       //do something like there you can call API or send data to firebase
       // if (errors) console.log("error is", errors);
@@ -168,7 +165,7 @@ export default function Home(props) {
   };
   return (
     <>
-     <ToastContainer />
+      <ToastContainer />
       <nav>
         <h1>Hello 1</h1>
         <Button variant="contained" onClick={handleOpenClose}>
@@ -283,7 +280,12 @@ export default function Home(props) {
               <h1>product Name: {eachProduct.productName}</h1>
               <h3>{eachProduct.productPrice}</h3>
               <p>{eachProduct.productDescription}</p>
-            <img src={eachProduct.productImg} alt="productImg" width="200px" height="200px"/>
+              <img
+                src={eachProduct.productImg}
+                alt="productImg"
+                width="200px"
+                height="200px"
+              />
               {/* <button onClick={()=>{eachProduct.id}}>Delete</button> */}
               {/* <button onClick={()=>{eachProduct.id}}>Edit</button> */}
               <hr />
