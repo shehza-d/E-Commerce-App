@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
-    "dev": "node --watch index.js"
+    "start": "node index.mjs",
+    "dev": "node --watch index.mjs"
   },
   "repository": {
     "type": "git",

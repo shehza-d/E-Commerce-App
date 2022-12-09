@@ -2,13 +2,15 @@ import express from "express";
 import path from "path";
 import cors from "cors";
 import mongoose from "mongoose";
+import admin from "firebase-admin";
 const app = express();
 const port = process.env.PORT || 3003;
 //middleware configuration
 app.use(express.json());
 app.use(cors()); //{origin: ['http://localhost:3000', 'https://ecom-25516.web.app', "*"]},
 // https://firebase.google.com/docs/storage/admin/start
-const serviceAccount = JSON.parse(process.env.serviceAccountFB) || {
+const serviceAccount = // JSON.parse(process.env.serviceAccountFB) || 
+ {
     type: "service_account",
     project_id: "e-commerce-shehzad",
     private_key_id: "acd1fac7c0b01bb7dd4194ef07d4508558106223",
@@ -23,11 +25,11 @@ const serviceAccount = JSON.parse(process.env.serviceAccountFB) || {
 // console.log("not avaliable"||process.env.serviceAccountFB);
 if (process.env.serviceAccountFB)
     console.log("this in env variable", process.env.serviceAccountFB);
-// admin.initializeApp({
-//   credential: admin.credential.cert(serviceAccount),
-//   databaseURL: "https://e-commerce-shehzad.firebaseio.com",
-// });
-// const bucket = admin.storage().bucket("gs://e-commerce-shehzad.appspot.com");
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: "https://e-commerce-shehzad.firebaseio.com",
+});
+const bucket = admin.storage().bucket("gs://e-commerce-shehzad.appspot.com");
 //==============================================
 import multer from "multer";
 // new syntax ==== const upload =multer({ dest: './public/data/upload/'})
