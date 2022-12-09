@@ -111,17 +111,17 @@ app.post("/product", upload.any(), async (req, res) => {
         req.files[0].originalname
       }`, // give destination name if you want to give a certain name to file in bucket, include date to make name unique otherwise it will replace previous file with the same name
     },
-  async  (err, file, apiResponse) => {
+    async (err, file, apiResponse) => {
       if (!err) {
         // console.log("api resp: ", apiResponse);
 
         // https://googleapis.dev/nodejs/storage/latest/Bucket.html#getSignedUrl
-        file
+        await file
           .getSignedUrl({
             action: "read",
             expires: "03-09-2491",
           })
-          .then(async(urlData, err):void => {
+          async (urlData, err): void => {
             if (!err) {
               console.log("public downloadable url: ", urlData[0]); // this is public downloadable url
               // // delete file from folder before sending response back to client (optional but recommended)
@@ -138,7 +138,7 @@ app.post("/product", upload.any(), async (req, res) => {
                   productName: body.productName,
                   productDescription: body.productDescription,
                   productPrice: body.productPrice,
-                  productImg: urlData[0]
+                  productImg: urlData[0],
                 },
                 (err, saved) => {
                   if (!err) {
@@ -154,7 +154,7 @@ app.post("/product", upload.any(), async (req, res) => {
                 }
               );
             }
-          });
+          };
       } else {
         console.log("err: ", err);
         res.status(500).send("testing");
@@ -250,8 +250,6 @@ app.post("/product", upload.any(), async (req, res) => {
   //     }
   //   }
   // );
-
- 
 });
 
 // to edit any course in Database
