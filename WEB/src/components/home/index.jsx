@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useRef, fileRef } from "react";
+import React, { useState, useEffect } from "react";
 // import { Link, Navigate } from "react-router-dom";
-
-import { Formik, useFormik } from "formik";
+import { useFormik } from "formik";
 import * as yup from "yup";
 import "./index.css";
 import axios from "axios";
@@ -19,7 +18,6 @@ import Modal from "@mui/material/Modal";
 // import { auth } from "./firebase-config";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 
 const style = {
   position: "absolute",
@@ -48,18 +46,18 @@ export default function Home(props) {
   const handleOpenClose = () => setOpen(!open);
 
   const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);//////
-  const [editingProduct, setEditingProduct] = useState(false);//////
+  // const [err, setErr] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false); //////
+  const [editingProduct, setEditingProduct] = useState(false); //////
   const [productData, setProductData] = useState([]);
   const [toggleRefresh, setToggleRefresh] = useState(true);
 
   //geting All Users
   useEffect(() => {
     (async () => {
-      const response = await axios.get(`${baseURI}/products`);
-      setProductData(response.data.data);
-      console.log(response.data.data);
+      const res = await axios.get(`${baseURI}/products`);
+      setProductData(res.data.data);
+      console.log(res.data.data);
     })();
   }, [toggleRefresh]);
 
@@ -98,7 +96,7 @@ export default function Home(props) {
         .min(1, "Product Price can't be less then 1")
         .max(20000000, "Product Price can't be greater then 200")
         .positive("Product Price can't be negative"),
-        // .integer("Enter Product Price without decimal"),
+      // .integer("Enter Product Price without decimal"),
       // productImg: yup
       //   //  .string()
       //   .test(
@@ -117,6 +115,7 @@ export default function Home(props) {
     }),
 
     onSubmit: async (values) => {
+      setLoading(true);
       // console.log(values);//values of formik
       const productImg = document.querySelector("#productImg");
 
@@ -138,7 +137,7 @@ export default function Home(props) {
         });
 
         console.log(`upload Success  ` + res.data.message);
-        toast(`${res.data.message}`);//https://www.npmjs.com/package/react-toastify
+        toast(`${res.data.message}`); //https://www.npmjs.com/package/react-toastify
         setToggleRefresh(!toggleRefresh);
         handleOpenClose();
         // axios.post(`${baseURI}/product`, {
@@ -147,43 +146,92 @@ export default function Home(props) {
         //   description: values.productDescription,
         // });
       } catch (err) {
-        console.log(err);
-        toast(`Image not found ${err.message}`)
+        console.log("my err", err);
+        // console.log("my err",err.response.data);
+        toast(err.response.data);
       }
       //do something like there you can call API or send data to firebase
       // if (errors) console.log("error is", errors);
+      setLoading(false);
     },
   });
-const deleteProduct =async (id)=>{
-  try {
-    const res = await axios.delete({
-                          // you may use any other library to send from-data request to server, I used axios for no specific reason, I used it just because I'm using it these days, earlier I was using npm request module but last week it get fully depricated, such a bad news.
-      // method: "post",
-      url: `${baseURI}/product`,
-      // data: formData,
-      headers: { "Content-Type": "multipart/form-data" },
-      // withCredentials: true
-    });
-  } catch (err) {
-    console.log(err);
-    toast(`Image not found ${err.message}`)
-  }
-}
+  const editProductFrmk = useFormik({
+    initialValues: {
+      productName: "",
+      productPrice: "",
+      productDescription: "",
+    },
+    validationSchema: yup.object({
+      productName: yup
+        .string("Enter your product name")
+        .required("product name is required")
+        .min(3, "please enter more then 3 characters ")
+        .max(20, "please enter within 20 characters "),
+      productPrice: yup
+        .number("Enter your product price")
+        .positive("enter positive product price")
+        .required("product name is required"),
 
-const editMode=(product)=>{
-  setIsEditMode(!isEditMode)
-setEditingProduct(product)
-}
+      productDescription: yup
+        .string("Enter your product Description")
+        .required("product name is required")
+        .min(3, "please enter more then 3 characters ")
+        .max(500, "please enter within 20 characters "),
+    }),
+    onSubmit: async (values) => {
+      setLoading(true);
+      console.log("values: ", values);
+      try {
+        const res = await axios.put(`${baseURI}/product/${editingProduct.id}`, {
+          name: values.productName,
+          price: values.productPrice,
+          description: values.productDescription,
+        });
+        console.log("response: ", res.data);
+        setIsEditMode(!isEditMode);
+        setToggleRefresh(!toggleRefresh);
+      } catch (err) {
+        console.log("error: ", err);
+        toast(`${err.message}`);
+      }
+      setLoading(false)
+    },
+  });
+  const deleteProduct = async (id) => {
+    setLoading(true)
+    console.log("delete product", id);
+    try {
+      const res = await axios.delete(`${baseURI}/product/${id}`);
+      console.log("response: ", res.data);
+      setToggleRefresh(!toggleRefresh);
+    } catch (err) {
+      console.log(err);
+      toast(`${err.message}`);
+    }
+    setLoading(false)
+  };
+
+  const editMode = (product) => {
+    setIsEditMode(!isEditMode);
+    setEditingProduct(product);
+    //  console.log(product)
+    editProductFrmk.setFieldValue("productName", product.productName);
+    editProductFrmk.setFieldValue(
+      "productDescription",
+      product.productDescription
+    );
+    editProductFrmk.setFieldValue("productPrice", product.productPrice);
+  };
   const handlePicChange = (e) => {
     // to display imager instantly on screen
     const profilePictureInput = document.querySelector("#productImg");
     const url = URL.createObjectURL(profilePictureInput.files[0]);
-    console.log("img url: ", url);
+    // console.log("img url: ", url);
     document.querySelector(
       "#previewProductImg"
     ).innerHTML = `<img width="200px" src="${url}" alt="" id="img"/> `;
     setFieldValue("productImg", e.target.files[0]);
-    console.log(e.target.files);
+    // console.log(e.target.files);
   };
   return (
     <>
@@ -293,12 +341,21 @@ setEditingProduct(product)
           {/* <img src={loadingGif} className="loadingGif" alt="Loading" /> */}
         </div>
       ) : null}
-      {err ? <div className="errorr">{err}</div> : ""}
+      {/* {err ? <div className="errorr">{err}</div> : ""} */}
 
       {!productData
         ? null
         : productData?.map((eachProduct, index) => (
-            <div className="productDataDiv" key={index}>
+            <div
+              className="productDataDiv"
+              key={index}
+              style={{
+                border: "1px solid black",
+                padding: 10,
+                margin: 10,
+                borderRadius: 15,
+              }}
+            >
               <h1>product Name: {eachProduct.productName}</h1>
               <h3>{eachProduct.productPrice}</h3>
               <p>{eachProduct.productDescription}</p>
@@ -308,12 +365,63 @@ setEditingProduct(product)
                 width="200px"
                 height="200px"
               />
-              <button onClick={()=>deleteProduct(eachProduct.id)}>Delete</button>
-              {/* <button onClick={()=>{eachProduct.id}}>Edit</button> */}
-              {/* {()} */}
+              <button onClick={() => deleteProduct(eachProduct._id)}>
+                Delete
+              </button>
+              <button onClick={() => editMode(eachProduct)}>Edit</button>
+              {isEditMode && editingProduct._id === eachProduct._id ? (
+                <div>
+                  <form onSubmit={editProductFrmk.handleSubmit}>
+                    <input
+                      id="productName"
+                      placeholder="Product Name"
+                      value={editProductFrmk.values.productName}
+                      onChange={editProductFrmk.handleChange}
+                    />
+                    {editProductFrmk.touched.productName &&
+                    Boolean(editProductFrmk.errors.productName) ? (
+                      <span style={{ color: "red" }}>
+                        {editProductFrmk.errors.productName}
+                      </span>
+                    ) : null}
+
+                    <br />
+                    <input
+                      id="productPrice"
+                      placeholder="Product Price"
+                      value={editProductFrmk.values.productPrice}
+                      onChange={editProductFrmk.handleChange}
+                    />
+                    {editProductFrmk.touched.productPrice &&
+                    Boolean(editProductFrmk.errors.productPrice) ? (
+                      <span style={{ color: "red" }}>
+                        {editProductFrmk.errors.productPrice}
+                      </span>
+                    ) : null}
+
+                    <br />
+                    <input
+                      id="productDescription"
+                      placeholder="Product Description"
+                      value={editProductFrmk.values.productDescription}
+                      onChange={editProductFrmk.handleChange}
+                    />
+                    {editProductFrmk.touched.productDescription &&
+                    Boolean(editProductFrmk.errors.productDescription) ? (
+                      <span style={{ color: "red" }}>
+                        {editProductFrmk.errors.productDescription}
+                      </span>
+                    ) : null}
+
+                    <br />
+                    <button type="submit"> Submit </button>
+                  </form>
+                </div>
+              ) : null}
               <hr />
             </div>
           ))}
+
       {/* <Button variant="contained">
           <Link to="/attendance">Attendance</Link>
         </Button>

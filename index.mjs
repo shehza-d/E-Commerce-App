@@ -2,17 +2,15 @@ import express from "express";
 import path from "path";
 import cors from "cors";
 import mongoose from "mongoose";
-import fs from "fs";
 import admin from "firebase-admin";
+import multer from "multer";
 const app = express();
 const port = process.env.PORT || 3003;
 //middleware configuration
 app.use(express.json());
 app.use(cors()); //{origin: ['http://localhost:3000', 'https://ecom-25516.web.app', "*"]},
 // https://firebase.google.com/docs/storage/admin/start
-const serviceAccount = 
-// JSON.parse(process.env.serviceAccountFB) ||
-{
+const serviceAccount = process.env.serviceAccountFB || {
     type: "service_account",
     project_id: "e-commerce-shehzad",
     private_key_id: "acd1fac7c0b01bb7dd4194ef07d4508558106223",
@@ -33,13 +31,12 @@ admin.initializeApp({
 });
 const bucket = admin.storage().bucket("gs://e-commerce-shehzad.appspot.com");
 //==============================================
-import multer from "multer";
 // new syntax ==== const upload =multer({ dest: './public/data/upload/'})
 const storageConfig = multer.diskStorage({
     // https://www.npmjs.com/package/multer#diskstorage
     destination: "./uploads/",
     filename: (req, file, cb) => {
-        console.log("mul-file: ", file);
+        // console.log("mul-file: ", file);
         cb(null, `${new Date().getTime()}-${file.originalname}`);
     },
 });
@@ -59,7 +56,7 @@ const productModel = mongoose.model("productSchema", new mongoose.Schema({
 //});
 //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ this is for courses $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 //to see all product list from database
-app.get("/products", (req, res) => {
+app.get("/products", async (req, res) => {
     productModel.find({}, (err, data) => {
         if (!err) {
             res.send({
@@ -77,198 +74,149 @@ app.get("/products", (req, res) => {
 //to add new product in Database
 app.post("/product", upload.any(), async (req, res) => {
     const body = req.body;
-    // console.log("body: ", body);
-    console.log("file: ", req.files[0]);
-    // if (!body.name || !body.email || !body.password) {
-    //   res.status(400).send(
-    //     `required fields missing, request example:
-    //             {
-    //                 "name": "John",
-    //                 "email": "abc@abc.com",
-    //                 "password": "12345"
-    //             }`
-    //   );
-    //   return;
-    // }
+    // const img:any = req.files[0] ;
+    // console.log("body: ", req);
+    // console.log("file: ", req.files[0]);
+    //(req.files[0].size) isper check lage ga for limit of MB
+    if (!body.productName || !body.productDescription || !body.productPrice) {
+        res.status(400).send(`Required fields missing`); //.statusMessage ="Image not found !";
+        return;
+    }
     // https://googleapis.dev/nodejs/storage/latest/Bucket.html#upload-examples
-    bucket.upload(req.files[0].path, {
-        destination: `productPhotos/${new Date().getTime()}-${req.files[0].originalname}`, // give destination name if you want to give a certain name to file in bucket, include date to make name unique otherwise it will replace previous file with the same name
-    }, async (err, file, apiResponse) => {
-        if (!err) {
-            // console.log("api resp: ", apiResponse);
-            // https://googleapis.dev/nodejs/storage/latest/Bucket.html#getSignedUrl
-            await file
-                .getSignedUrl({
-                action: "read",
-                expires: "03-09-2491",
-            });
-            async (urlData, err) => {
-                if (!err) {
-                    console.log("public downloadable url: ", urlData[0]); // this is public downloadable url
-                    // // delete file from folder before sending response back to client (optional but recommended)
-                    // // optional because it is gonna delete automatically sooner or later
-                    // // recommended because you may run out of space if you dont do so, and if your files are sensitive it is simply not safe in server folder
-                    try {
-                        fs.unlinkSync(req.files[0].path); //file removed
-                    }
-                    catch (err) {
-                        console.error(err);
-                    }
-                    // res.send("Ok");
-                    await productModel.create({
-                        productName: body.productName,
-                        productDescription: body.productDescription,
-                        productPrice: body.productPrice,
-                        productImg: urlData[0],
-                    }, (err, saved) => {
-                        if (!err) {
-                            console.log("saved");
-                            res.send({
-                                message: "Your data is saved Successfully",
-                            });
-                        }
-                        else {
-                            res.status(500).send({
-                                message: "error hy koi server ma",
-                            });
-                        }
-                    });
-                }
-            };
-        }
-        else {
-            console.log("err: ", err);
-            res.status(500).send("testing");
-        }
-    });
-    // https://googleapis.dev/nodejs/storage/latest/Bucket.html#upload-examples
-    // bucket.upload(
-    //   req.files[0].path,
-    //   {
-    //     destination: `profilePhotos/${req.files[0].filename}`, // give destination name if you want to give a certain name to file in bucket, include date to make name unique otherwise it will replace previous file with the same name
-    //   },
-    //   function (err, file, apiResponse) {
-    //     if (!err) {
-    //       // console.log("api resp: ", apiResponse);
-    //       // https://googleapis.dev/nodejs/storage/latest/Bucket.html#getSignedUrl
-    //       file
-    //         .getSignedUrl({
+    // if (req.files[0]) {
+    //   bucket.upload(
+    //     req.files[0].path,
+    //     {
+    //       destination:
+    //       `productPhotos/${new Date().getTime()}-${req.files[0].originalname}`,
+    //       // give destination name if you want to give a certain name to file in bucket, include date to make name unique otherwise it will replace previous file with the same name
+    //     },
+    //     async (err, file: any, apiResponse) => {
+    //       if (!err) {
+    //         // console.log("api resp: ", apiResponse);
+    //         // https://googleapis.dev/nodejs/storage/latest/Bucket.html#getSignedUrl
+    //         await file.getSignedUrl({
     //           action: "read",
     //           expires: "03-09-2491",
-    //         })
-    //         .then((urlData, err) => {
+    //         });
+    //         async (urlData: String, err: Error): Promise<void> => {
     //           if (!err) {
     //             console.log("public downloadable url: ", urlData[0]); // this is public downloadable url
-    //             // delete file from folder before sending response back to client (optional but recommended)
-    //             // optional because it is gonna delete automatically sooner or later
-    //             // recommended because you may run out of space if you dont do so, and if your files are sensitive it is simply not safe in server folder
+    //             // // delete file from folder before sending response back to client (optional but recommended)
+    //             // // optional because it is gonna delete automatically sooner or later
+    //             // // recommended because you may run out of space if you dont do so, and if your files are sensitive it is simply not safe in server folder
+    // recommended because you may run out of space if you dont do so, and if your files are sensitive it is simply not safe in server folder
     //             try {
-    //               fs.unlinkSync(req.files[0].path);
-    //               //file removed
+    //               fs.unlinkSync(req.files[0].path); //file removed
     //             } catch (err) {
     //               console.error(err);
     //             }
-    //             // check if user already exist // query email user
-    //             productModel.findOne({ email: body.email }, (err, user) => {
-    //               if (!err) {
-    //                 console.log("user: ", user);
-    //                 if (user) {
-    //                   // user already exist
-    //                   console.log("user already exist: ", user);
-    //                   res.status(400).send({
-    //                     message:
-    //                       "user already exist,, please try a different email",
+    //             // res.send("Ok");
+    //             await productModel.create(
+    //               {
+    //                 productName: body.productName,
+    //                 productDescription: body.productDescription,
+    //                 productPrice: body.productPrice,
+    //                 productImg: urlData[0],
+    //               },
+    //               (err, saved) => {
+    //                 if (!err) {
+    //                   console.log("saved");
+    //                   res.send({
+    //                     message: "Your data is saved Successfully",
     //                   });
-    //                   return;
     //                 } else {
-    //                   // user not already exist
-    //                   stringToHash(body.password).then((hashString) => {
-    //                     userModel.create(
-    //                       {
-    //                         name: body.name,
-    //                         email: body.email.toLowerCase(),
-    //                         password: hashString,
-    //                         profilePicture: urlData[0],
-    //                       },
-    //                       (err, result) => {
-    //                         if (!err) {
-    //                           console.log("data saved: ", result);
-    //                           res.status(201).send({
-    //                             message: "user is created",
-    //                             data: {
-    //                               name: body.name,
-    //                               email: body.email.toLowerCase(),
-    //                               profilePicture: urlData[0],
-    //                             },
-    //                           });
-    //                         } else {
-    //                           console.log("db error: ", err);
-    //                           res
-    //                             .status(500)
-    //                             .send({ message: "internal server error" });
-    //                         }
-    //                       }
-    //                     );
+    //                   res.status(500).send({
+    //                     message: "error hy koi server ma",
     //                   });
     //                 }
-    //               } else {
-    //                 console.log("db error: ", err);
-    //                 res.status(500).send({ message: "db error in query" });
-    //                 return;
     //               }
+    //             );
+    //           } else {
+    //             res.status(500).send({
+    //               message: "serverrr hy koi server ma",
     //             });
+    //             console.log("errr: ", err);
     //           }
-    //         });
-    //     } else {
-    //       console.log("err: ", err);
-    //       res.status(500).send();
+    //         };
+    //       } else {
+    //         console.log("err: ", err);
+    //         res.status(500).send("testing");
+    //       }
     //     }
-    //   }
-    // );
-});
-// to edit any course in Database
-app.put("/course/:id", async (req, res) => {
-    // try {
-    //   const updatedData = await courseModel
-    //     .findByIdAndUpdate(req.params.id, { text: req.body.text })
-    //     .exec();
-    //   console.log(updatedData);
-    //   res.send({
-    //     message: "course has been updated successfully",
-    //     data: updatedData,
-    //   });
-    // } catch (err) {
-    //   res.status(500).send({ message: "server errror" });
+    //   );
     // }
+    await productModel.create({
+        productName: body.productName,
+        productDescription: body.productDescription,
+        productPrice: body.productPrice,
+        productImg: "no image",
+    }, (err, saved) => {
+        if (!err) {
+            console.log("saved");
+            res.send({
+                message: "Your data is saved (without img)",
+            });
+        }
+        else {
+            res.status(500).send({
+                message: "error hy koi server ma",
+            });
+        }
+    });
 });
-// delete all courses in Database
-app.delete("/courses", (req, res) => {
-    // courseModel.deleteMany({}, (err) => {
-    //   if (!err) {
-    //     res.send({ message: "all course deleted successfully" });
-    //   } else {
-    //     res.status(500).send({ message: "server error" });
-    //   }
-    // });
+// to edit any product in Database
+app.put("/product/:id", async (req, res) => {
+    const body = req.body;
+    try {
+        await productModel
+            .findByIdAndUpdate(req.params.id, {
+            productName: body.productName,
+            productDescription: body.productDescription,
+            productPrice: body.productPrice,
+        })
+            .exec();
+        // console.log(updatedData);
+        res.send({ message: "Product updated Successfully" });
+    }
+    catch (err) {
+        res.status(500).send("server errror product not updated");
+    }
 });
-// //to delete selected courses
+// delete all product in Database
+app.delete("/products", async (req, res) => {
+    await productModel.deleteMany({}, (err) => {
+        if (!err) {
+            res.send("All products Deleted");
+        }
+        else {
+            res.status(500).send({ message: "server error" });
+        }
+    });
+});
+// //to delete selected courses   `
 // //:id is URL parameter
-// app.delete("/course/:id", (req, res) => {
-//   courseModel.deleteOne({ _id: req.params.id }, (err, deletedData) => {
-//     console.log("deleted: ", deletedData);
-//     if (!err) {
-//       if (deletedData.deletedCount !== 0) {
-//         res.send({
-//           message: "One Todo has been deleted successfully",
-//         });
-//       } else {
-//         res.send({ message: "No todo found with this id " });
-//       }
-//     } else {
-//       res.status(500).send({ message: "server error" });
-//     }
-//   });
-// });
+app.delete("/product/:id", async (req, res) => {
+    try {
+        await productModel.deleteOne({ _id: req.params.id }, (err, deletedData) => {
+            console.log("deleted: ", deletedData);
+            if (!err) {
+                if (deletedData.deletedCount !== 0) {
+                    res.send({ message: "One product has been deleted successfully" });
+                }
+                else {
+                    res.send({ message: "No product found with this id " });
+                }
+            }
+            else {
+                res.status(500).send({ message: "server error Not deleted" });
+            }
+        });
+    }
+    catch (err) {
+        console.log("error: ", err);
+    }
+});
 //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ this is for Students $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 const __dirname = path.resolve();
 app.use("/", express.static(path.join(__dirname, "./WEB/build")));
@@ -277,7 +225,7 @@ app.use("*", express.static(path.join(__dirname, "./WEB/build")));
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);
 });
-console.log(process.env.MongoDBURI);
+// console.log(process.env.MongoDBURI);
 //MongoDB
 const dbURI = process.env.MongoDBURI ||
     "mongodb+srv://shehza-d:web123@cluster0.egqvqca.mongodb.net/ecomme?retryWrites=true&w=majority";
@@ -285,27 +233,25 @@ await mongoose.connect(dbURI);
 //await removed
 // //for status of DB
 // ////////////////mongodb connected disconnected events///////////
-// mongoose.connection.on(
-//   "connected",
-//   () => console.log("Mongoose is connected")
-//   // process.exit(1);
-// );
-// mongoose.connection.on("disconnected", () => {
-//   //disconnected
-//   console.log("Mongoose is disconnected");
-//   process.exit(1);
-// });
-// mongoose.connection.on("error", (err) => {
-//   //any error
-//   console.log("Mongoose connection error: ", err);
-//   process.exit(1);
-// });
-// process.on("SIGINT", () => {
-//   /////this function will run jst before app is closing
-//   console.log("app is terminating");
-//   mongoose.connection.close(function () {
-//     console.log("Mongoose default connection closed");
-//     process.exit(0);
-//   });
-// });
-// //////////////mongodb connected disconnected events//////////
+mongoose.connection.on("connected", () => console.log("Mongoose is connected")
+// process.exit(1);
+);
+//disconnected
+mongoose.connection.on("disconnected", () => {
+    console.log("Mongoose is disconnected");
+    process.exit(1);
+});
+//any error
+mongoose.connection.on("error", (err) => {
+    console.log("Mongoose connection error: ", err);
+    process.exit(1);
+});
+process.on("SIGINT", () => {
+    //this function will run jst before app is closing
+    console.log("app is terminating");
+    mongoose.connection.close(function () {
+        console.log("Mongoose default connection closed");
+        process.exit(0);
+    });
+});
+////////////////mongodb connected disconnected events\\\\\\\\\\\\\\
