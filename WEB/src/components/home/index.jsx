@@ -156,11 +156,11 @@ export default function Home(props) {
   });
 const deleteProduct =async (id)=>{
   try {
-    const res = await axios({
+    const res = await axios.delete({
                           // you may use any other library to send from-data request to server, I used axios for no specific reason, I used it just because I'm using it these days, earlier I was using npm request module but last week it get fully depricated, such a bad news.
-      method: "post",
+      // method: "post",
       url: `${baseURI}/product`,
-      data: formData,
+      // data: formData,
       headers: { "Content-Type": "multipart/form-data" },
       // withCredentials: true
     });
