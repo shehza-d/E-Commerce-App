@@ -10,7 +10,9 @@ const port = process.env.PORT || 3003;
 app.use(express.json());
 app.use(cors()); //{origin: ['http://localhost:3000', 'https://ecom-25516.web.app', "*"]},
 // https://firebase.google.com/docs/storage/admin/start
-const serviceAccount = process.env.serviceAccountFB || {
+
+//process.env.serviceAccountFB ||
+const serviceAccount = {
     type: "service_account",
     project_id: "e-commerce-shehzad",
     private_key_id: "acd1fac7c0b01bb7dd4194ef07d4508558106223",
