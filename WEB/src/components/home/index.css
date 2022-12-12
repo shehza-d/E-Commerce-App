@@ -1,5 +1,14 @@
-.btnDiv{
-	border: 2px solid red;
-display: flex;
-flex-direction: column;
+.bgImg {
+	width: 100vw;
+	height: 100vh;
+	background-color: red;
+  /* background-image: url('https://source.unsplash.com/1600x900/?weather'); */
+  background-image: url("https://res.cloudinary.com/deh1sqok6/image/upload/v1670858801/v6qblor6eolezhm5yqzt.jpg");
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+.btnDiv {
+  border: 2px solid red;
+  display: flex;
+  flex-direction: column;
 }

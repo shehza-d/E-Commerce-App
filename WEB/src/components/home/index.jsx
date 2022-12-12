@@ -18,7 +18,8 @@ import Modal from "@mui/material/Modal";
 // import { auth } from "./firebase-config";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+ import { AiOutlineArrowRight } from "react-icons/ai";
+ 
 const style = {
   position: "absolute",
   top: "50%",
@@ -31,14 +32,14 @@ const style = {
   p: 4,
 };
 
-let baseURI = "";
-if (window.location.href.split(":")[0] === "http") {
-  baseURI = `http://localhost:3003`;
-} else {
-  baseURI = `https://e-commerce-store-shehzad.up.railway.app`;
-}
+// let baseURI = "";
+// if (window.location.href.split(":")[0] === "http") {
+//   baseURI = `http://localhost:3003`;
+// } else {
+//   baseURI = `https://e-commerce-store-shehzad.up.railway.app`;
+// }
 // const baseURI = `http://localhost:3003`;
-// const baseURI =`https://e-commerce-store-shehzad.up.railway.app`
+const baseURI = `https://e-commerce-store-shehzad.up.railway.app`;
 
 export default function Home(props) {
   // Material UI
@@ -194,11 +195,11 @@ export default function Home(props) {
         console.log("error: ", err);
         toast(`${err.message}`);
       }
-      setLoading(false)
+      setLoading(false);
     },
   });
   const deleteProduct = async (id) => {
-    setLoading(true)
+    setLoading(true);
     console.log("delete product", id);
     try {
       const res = await axios.delete(`${baseURI}/product/${id}`);
@@ -209,7 +210,7 @@ export default function Home(props) {
       console.log(err);
       toast(`${err.message}`);
     }
-    setLoading(false)
+    setLoading(false);
   };
 
   const editMode = (product) => {
@@ -237,13 +238,13 @@ export default function Home(props) {
   return (
     <>
       <ToastContainer />
-      <nav>
-        <h1>Hello 1</h1>
+      <div className="bgImg">
+        <h1>E-Commerce Store</h1>
         <Button variant="contained" onClick={handleOpenClose}>
-          Add Product
+          Add Product <AiOutlineArrowRight/>
         </Button>
         <Button variant="contained" onClick={setToggleRefresh}>
-          refresh
+          Refresh
         </Button>
         <Modal
           open={open}
@@ -335,15 +336,15 @@ export default function Home(props) {
           </Box>
         </Modal>
         {/* <button onClick={async () => await signOut(auth)}>LogOut</button> */}
-      </nav>
-      {loading ? (
-        <div className="loadingDiv">
-          loading...
-          {/* <img src={loadingGif} className="loadingGif" alt="Loading" /> */}
-        </div>
-      ) : null}
-      {/* {err ? <div className="errorr">{err}</div> : ""} */}
 
+        {loading ? (
+          <div className="loadingDiv">
+            loading...
+            {/* <img src={loadingGif} className="loadingGif" alt="Loading" /> */}
+          </div>
+        ) : null}
+        {/* {err ? <div className="errorr">{err}</div> : ""} */}
+      </div>
       {!productData
         ? null
         : productData?.map((eachProduct, index) => (

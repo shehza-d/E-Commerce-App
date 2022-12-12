@@ -1,0 +1,15 @@
+.NavBar{
+    display: flex;
+    background-color: aqua;
+    height: 50px;
+    width: 100vw;
+}
+.NavBar>ul{
+    display: flex;
+    list-style: none;
+}
+.NavBar>ul>li{
+    border: 2px solid red;
+    padding: 5px;
+    border-radius: 50px;
+}

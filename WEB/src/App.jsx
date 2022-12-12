@@ -7,6 +7,9 @@ import Home from "./components/home/index";
 import Courses from "./components/courses/index";
 // import { auth } from "./firebase";
 // import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { NavBar } from "./components/NavBar/index";
+
+
 
 export default function App(props) {
 
@@ -25,6 +28,7 @@ export default function App(props) {
 
   return (
     <div className="App">
+      <NavBar/>
       {isLogin ? (
         <Routes>
           <Route path="/" element={<Home />} />
