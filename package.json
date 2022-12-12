@@ -2,23 +2,23 @@
   "name": "e-commerce-shehzad",
   "version": "1.0.0",
   "description": "my work",
-  "main": "index.mjs",
+  "main": "server.mjs",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.mjs",
-    "dev": "node --watch index.mjs"
+    "start": "node server.mjs",
+    "dev": "node --watch server.mjs"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/shehza-d/HACKATHON-1.git"
+    "url": "git+https://github.com/shehza-d/reponame"
   },
   "author": "shehzad",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/shehza-d/HACKATHON-1/issues"
+    "url": "https://github.com/shehza-d/reponame/issues"
   },
-  "homepage": "https://github.com/shehza-d/HACKATHON-1#readme",
+  "homepage": "https://github.com/shehza-d/reponame#readme",
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.18.2",
