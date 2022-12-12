@@ -38,8 +38,8 @@ const style = {
 // } else {
 //   baseURI = `https://e-commerce-store-shehzad.up.railway.app`;
 // }
-// const baseURI = `http://localhost:3003`;
-const baseURI = `https://e-commerce-store-shehzad.up.railway.app`;
+const baseURI = `http://localhost:3003`;
+// const baseURI = `https://e-commerce-store-shehzad.up.railway.app`;
 
 export default function Home(props) {
   // Material UI
@@ -183,7 +183,8 @@ export default function Home(props) {
       setLoading(true);
       console.log("values: ", values);
       try {
-        const res = await axios.put(`${baseURI}/product/${editingProduct.id}`, {
+
+        const res = await axios.put(`${baseURI}/product/${editingProduct._id}`, {
           name: values.productName,
           price: values.productPrice,
           description: values.productDescription,

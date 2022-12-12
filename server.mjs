@@ -1,3 +1,4 @@
+//Self documented API
 import express from "express";
 import path from "path";
 import cors from "cors";
@@ -6,12 +7,12 @@ import admin from "firebase-admin";
 import multer from "multer";
 import mongoose from "mongoose";
 
-import getAllDataFun from './routes/GET.mjs'
+import getAllDataFun from "./routes/GET.mjs";
 // import  from './routes/POST.mjs'
-import editDataFun from './routes/PUT.mjs'
-import {deleteAllDataFun, deleteOneData} from './routes/DELETE.mjs'
-import {MongoDB,db} from "./database/model.mjs";
- 
+import editDataFun from "./routes/PUT.mjs";
+import { deleteAllDataFun, deleteOneData } from "./routes/DELETE.mjs";
+import { productModel } from "./database/model.mjs";
+
 const app = express();
 const port = process.env.PORT || 3003;
 //middleware configuration
@@ -19,7 +20,7 @@ app.use(express.json());
 app.use(cors()); //{origin: ['http://localhost:3000', 'https://ecom-25516.web.app', "*"]},
 
 // https://firebase.google.com/docs/storage/admin/start
-//process.env.serviceAccountFB || 
+//process.env.serviceAccountFB ||
 const serviceAccount = {
   type: "service_account",
   project_id: "e-commerce-shehzad",
@@ -58,7 +59,6 @@ const storageConfig = multer.diskStorage({
 const upload = multer({ storage: storageConfig });
 //==============================================
 
-
 // To remove
 //app.get("/", (req: express.Request, res: express.Response): void => {
 // res.send(`Server for Shehzad e-commerce App!`);
@@ -81,62 +81,62 @@ app.post("/product", upload.any(), async (req, res) => {
   }
 
   // if (req.files[0]) {
-    // bucket.upload(
-    //   req.files[0].path,
-    //   {
-    //     destination:
-    //     `productPhotos/${new Date().getTime()}-${req.files[0].originalname}`,
-    //   },
-    //   async (err, file, apiResponse) => {
-    //     if (!err) {
-    //       // console.log("api resp: ", apiResponse);
-    //       await file.getSignedUrl({
-    //         action: "read",
-    //         expires: "03-09-2491",
-    //       });
-    //       async (urlData, err) => {
-    //         if (!err) {
-    //           console.log("public downloadable url: ", urlData[0]); // this is public downloadable url
-    //           try {
-    //             fs.unlinkSync(req.files[0].path); //file removed
-    //           } catch (err) {
-    //             console.error(err);
-    //           }
-    //           await productModel.create(
-    //             {
-    //               productName: body.productName,
-    //               productDescription: body.productDescription,
-    //               productPrice: body.productPrice,
-    //               productImg: urlData[0],
-    //             },
-    //             (err, saved) => {
-    //               if (!err) {
-    //                 console.log("saved");
-    //                 res.send({
-    //                   message: "Your data is saved Successfully",
-    //                 });
-    //               } else {
-    //                 res.status(500).send({
-    //                   message: "error hy koi server ma",
-    //                 });
-    //               }
-    //             }
-    //           );
-    //         } else {
-    //           res.status(500).send({
-    //             message: "serverrr hy koi server ma",
-    //           });
-    //           console.log("errr: ", err);
-    //         }
-    //       };
-    //     } else {
-    //       console.log("err: ", err);
-    //       res.status(500).send("testing");
-    //     }
-    //   }
-    // );
-  
-  await db.create(
+  // bucket.upload(
+  //   req.files[0].path,
+  //   {
+  //     destination:
+  //     `productPhotos/${new Date().getTime()}-${req.files[0].originalname}`,
+  //   },
+  //   async (err, file, apiResponse) => {
+  //     if (!err) {
+  //       // console.log("api resp: ", apiResponse);
+  //       await file.getSignedUrl({
+  //         action: "read",
+  //         expires: "03-09-2491",
+  //       });
+  //       async (urlData, err) => {
+  //         if (!err) {
+  //           console.log("public downloadable url: ", urlData[0]); // this is public downloadable url
+  //           try {
+  //             fs.unlinkSync(req.files[0].path); //file removed
+  //           } catch (err) {
+  //             console.error(err);
+  //           }
+  //           await productModel.create(
+  //             {
+  //               productName: body.productName,
+  //               productDescription: body.productDescription,
+  //               productPrice: body.productPrice,
+  //               productImg: urlData[0],
+  //             },
+  //             (err, saved) => {
+  //               if (!err) {
+  //                 console.log("saved");
+  //                 res.send({
+  //                   message: "Your data is saved Successfully",
+  //                 });
+  //               } else {
+  //                 res.status(500).send({
+  //                   message: "error hy koi server ma",
+  //                 });
+  //               }
+  //             }
+  //           );
+  //         } else {
+  //           res.status(500).send({
+  //             message: "serverrr hy koi server ma",
+  //           });
+  //           console.log("errr: ", err);
+  //         }
+  //       };
+  //     } else {
+  //       console.log("err: ", err);
+  //       res.status(500).send("testing");
+  //     }
+  //   }
+  // );
+
+  await productModel.create(
     {
       productName: body.productName,
       productDescription: body.productDescription,
@@ -159,7 +159,47 @@ app.post("/product", upload.any(), async (req, res) => {
 });
 
 // to edit any product in Database
-app.put("/product/:id", editDataFun);
+app.put("/product/:id", async (req, res) => {
+  const body = req.body;
+  console.log("put req running", req.params.id);
+  console.log("put req running", body);
+
+  // if (!body.productName || !body.productDescription || !body.productPrice) {
+  //   res.status(400).send(`Required fields missing`); //.statusMessage ="Image not found !";
+  //   return;
+  // }
+
+  console.log(
+    "mongoose.isValidObjectId: ",
+    mongoose.isValidObjectId(req.params.id)
+  );
+
+  try {
+    productModel.findOneAndUpdate(
+      { _id: mongoose.Types.ObjectId(req.params.id) },
+
+      {
+        productName: body.name,
+        productDescription: body.description,
+        productPrice: body.price,
+      },
+      { new: true },
+      (err, doc) => {
+        console.log("data ===>", doc);
+        res.send({ message: "Product updated Successfully" });
+      }
+    );
+
+    // {new:true}
+    //new true se new added data return hoga false se purana data mile ga
+    // .sort({-1})
+    //  1 assending order and -1 for desandaing order
+    // console.log(updatedData);
+  } catch (err) {
+    console.log("err: ", err);
+    res.status(500).send("server errror product not updated");
+  }
+});
 
 // delete all product in Database
 app.delete("/products", deleteAllDataFun);
@@ -179,9 +219,10 @@ app.listen(port, () => {
 // console.log(process.env.MongoDBURI);
 
 //MongoDB
-const dbURI =
-process.env.MongoDBURI ||
-"mongodb+srv://shehza-d:web123@cluster0.egqvqca.mongodb.net/ecomme?retryWrites=true&w=majority";
+const dbURI = "mongodb+srv://abc:abc@cluster0.wclhhvn.mongodb.net/newDB?retryWrites=true&w=majority"
+ // process.env.MongoDBURI ||
+  //"mongodb+srv://shehza-d:web123@cluster0.egqvqca.mongodb.net/ecomme?retryWrites=true&w=majority";
+ 
 await mongoose.connect(dbURI);
 
 // MongoDB(dbURI)
@@ -191,7 +232,7 @@ await mongoose.connect(dbURI);
 mongoose.connection.on(
   "connected",
   () => console.log("Mongoose is connected")
-  // process.exit(1);
+  // process.exit(1); 
 );
 
 //disconnected

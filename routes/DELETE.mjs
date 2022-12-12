@@ -1,7 +1,7 @@
-import {db} from "../database/model.mjs";
+import { productModel } from "../database/model.mjs";
 
 const deleteAllDataFun = async (req, res) => {
-  await db.deleteMany({}, (err) => {
+  await productModel.deleteMany({}, (err) => {
     if (!err) {
       res.send("All products Deleted");
     } else {
@@ -10,6 +10,7 @@ const deleteAllDataFun = async (req, res) => {
   });
 };
 const deleteOneData = async (req, res) => {
+  // deleteOne se phale wala delete ho kar req wapas aayae gyi
   try {
     await db.deleteOne({ _id: req.params.id }, (err, deletedData) => {
       console.log("deleted: ", deletedData);
