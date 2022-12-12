@@ -204,6 +204,7 @@ export default function Home(props) {
       const res = await axios.delete(`${baseURI}/product/${id}`);
       console.log("response: ", res.data);
       setToggleRefresh(!toggleRefresh);
+      toast(`${res.data.message}`);
     } catch (err) {
       console.log(err);
       toast(`${err.message}`);
