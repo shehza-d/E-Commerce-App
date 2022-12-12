@@ -1,10 +1,16 @@
 import express from "express";
 import path from "path";
 import cors from "cors";
-import mongoose from "mongoose";
 import fs from "fs";
 import admin from "firebase-admin";
 import multer from "multer";
+
+import getAllDataFun from './routes/GET.mjs'
+// import  from './routes/POST.mjs'
+import editDataFun from './routes/PUT.mjs'
+import {deleteAllDataFun, deleteOneData} from './routes/DELETE.mjs'
+
+import db from "./database/model.mjs";
 
 const app = express();
 const port = process.env.PORT || 3003;
@@ -51,37 +57,14 @@ const storageConfig = multer.diskStorage({
 const upload = multer({ storage: storageConfig });
 //==============================================
 
-const productModel = mongoose.model(
-  "productSchema",
-  new mongoose.Schema({
-    productName: { type: String, require: true },
-    productDescription: String,
-    productPrice: { type: Number, require: true },
-    productImg: { type: String, required: false },
-    // classID: String,
-    createdDate: { type: Date, default: Date.now },
-  })
-);
+
 // To remove
 //app.get("/", (req: express.Request, res: express.Response): void => {
 // res.send(`Server for Shehzad e-commerce App!`);
 //});
 //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ this is for courses $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 //to see all product list from database
-app.get("/products", async (req, res) => {
-  productModel.find({}, (err, data) => {
-    if (!err) {
-      res.send({
-        message: "here is you product list",
-        data: data,
-      });
-    } else {
-      res.status(500).send({
-        message: "server error",
-      });
-    }
-  });
-});
+app.get("/products", getAllDataFun);
 
 //to add new product in Database
 app.post("/product", upload.any(), async (req, res) => {
@@ -160,7 +143,7 @@ app.post("/product", upload.any(), async (req, res) => {
   //     }
   //   );
   // }
-  await productModel.create(
+  await db.create(
     {
       productName: body.productName,
       productDescription: body.productDescription,
@@ -183,57 +166,14 @@ app.post("/product", upload.any(), async (req, res) => {
 });
 
 // to edit any product in Database
-app.put("/product/:id", async (req, res) => {
-  const body = req.body;
-  try {
-    await productModel
-      .findByIdAndUpdate(req.params.id, {
-        productName: body.productName,
-        productDescription: body.productDescription,
-        productPrice: body.productPrice,
-      })
-      .exec();
-    // console.log(updatedData);
-    res.send({ message: "Product updated Successfully" });
-  } catch (err) {
-    res.status(500).send("server errror product not updated");
-  }
-});
+app.put("/product/:id", editDataFun);
 
 // delete all product in Database
-app.delete("/products", async (req, res) => {
-  await productModel.deleteMany({}, (err) => {
-    if (!err) {
-      res.send("All products Deleted");
-    } else {
-      res.status(500).send({ message: "server error" });
-    }
-  });
-});
+app.delete("/products", deleteAllDataFun);
 
 // //to delete selected courses   `
 // //:id is URL parameter
-app.delete("/product/:id", async (req, res) => {
-  try {
-    await productModel.deleteOne(
-      { _id: req.params.id },
-      (err, deletedData) => {
-        console.log("deleted: ", deletedData);
-        if (!err) {
-          if (deletedData.deletedCount !== 0) {
-            res.send({ message: "One product has been deleted successfully" });
-          } else {
-            res.send({ message: "No product found with this id " });
-          }
-        } else {
-          res.status(500).send({ message: "server error Not deleted" });
-        }
-      }
-    );
-  } catch (err) {
-    console.log("error: ", err);
-  }
-});
+app.delete("/product/:id", deleteOneData);
 
 //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ this is for Students $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 const __dirname = path.resolve();
