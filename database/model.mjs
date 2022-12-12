@@ -1,6 +1,9 @@
 import mongoose from "mongoose";
 
-const productModel = mongoose.model(
+const MongoDB =(dbURI)=> {
+}
+
+const db = mongoose.model(
   "productSchema",
   new mongoose.Schema({
     productName: { type: String, require: true },
@@ -12,4 +15,8 @@ const productModel = mongoose.model(
   })
 );
 
-export default productModel;
+const ConnectMongoDB = (url) => {
+  return mongoose.connect(url)
+}
+// module.exports = ConnectMongoDB
+export {MongoDB,db };

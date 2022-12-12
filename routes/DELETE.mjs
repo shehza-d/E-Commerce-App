@@ -1,4 +1,4 @@
-import db from "../database/model.mjs";
+import {db} from "../database/model.mjs";
 
 const deleteAllDataFun = async (req, res) => {
   await db.deleteMany({}, (err) => {
@@ -11,7 +11,7 @@ const deleteAllDataFun = async (req, res) => {
 };
 const deleteOneData = async (req, res) => {
   try {
-    await productModel.deleteOne({ _id: req.params.id }, (err, deletedData) => {
+    await db.deleteOne({ _id: req.params.id }, (err, deletedData) => {
       console.log("deleted: ", deletedData);
       if (!err) {
         if (deletedData.deletedCount !== 0) {

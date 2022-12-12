@@ -4,14 +4,14 @@ import cors from "cors";
 import fs from "fs";
 import admin from "firebase-admin";
 import multer from "multer";
+import mongoose from "mongoose";
 
 import getAllDataFun from './routes/GET.mjs'
 // import  from './routes/POST.mjs'
 import editDataFun from './routes/PUT.mjs'
 import {deleteAllDataFun, deleteOneData} from './routes/DELETE.mjs'
-
-import db from "./database/model.mjs";
-
+import {MongoDB,db} from "./database/model.mjs";
+ 
 const app = express();
 const port = process.env.PORT || 3003;
 //middleware configuration
@@ -79,70 +79,62 @@ app.post("/product", upload.any(), async (req, res) => {
     return;
   }
 
-  // https://googleapis.dev/nodejs/storage/latest/Bucket.html#upload-examples
   // if (req.files[0]) {
-  //   bucket.upload(
-  //     req.files[0].path,
-  //     {
-  //       destination:
-  //       `productPhotos/${new Date().getTime()}-${req.files[0].originalname}`,
-  //       // give destination name if you want to give a certain name to file in bucket, include date to make name unique otherwise it will replace previous file with the same name
-  //     },
-  //     async (err, file: any, apiResponse) => {
-  //       if (!err) {
-  //         // console.log("api resp: ", apiResponse);
-  //         // https://googleapis.dev/nodejs/storage/latest/Bucket.html#getSignedUrl
-  //         await file.getSignedUrl({
-  //           action: "read",
-  //           expires: "03-09-2491",
-  //         });
-  //         async (urlData: String, err: Error): Promise<void> => {
-  //           if (!err) {
-  //             console.log("public downloadable url: ", urlData[0]); // this is public downloadable url
-  //             // // delete file from folder before sending response back to client (optional but recommended)
-  //             // // optional because it is gonna delete automatically sooner or later
-  //             // // recommended because you may run out of space if you dont do so, and if your files are sensitive it is simply not safe in server folder
-  // recommended because you may run out of space if you dont do so, and if your files are sensitive it is simply not safe in server folder
-  //             try {
-  //               fs.unlinkSync(req.files[0].path); //file removed
-  //             } catch (err) {
-  //               console.error(err);
-  //             }
-  //             // res.send("Ok");
-  //             await productModel.create(
-  //               {
-  //                 productName: body.productName,
-  //                 productDescription: body.productDescription,
-  //                 productPrice: body.productPrice,
-  //                 productImg: urlData[0],
-  //               },
-  //               (err, saved) => {
-  //                 if (!err) {
-  //                   console.log("saved");
-  //                   res.send({
-  //                     message: "Your data is saved Successfully",
-  //                   });
-  //                 } else {
-  //                   res.status(500).send({
-  //                     message: "error hy koi server ma",
-  //                   });
-  //                 }
-  //               }
-  //             );
-  //           } else {
-  //             res.status(500).send({
-  //               message: "serverrr hy koi server ma",
-  //             });
-  //             console.log("errr: ", err);
-  //           }
-  //         };
-  //       } else {
-  //         console.log("err: ", err);
-  //         res.status(500).send("testing");
-  //       }
-  //     }
-  //   );
-  // }
+    // bucket.upload(
+    //   req.files[0].path,
+    //   {
+    //     destination:
+    //     `productPhotos/${new Date().getTime()}-${req.files[0].originalname}`,
+    //   },
+    //   async (err, file, apiResponse) => {
+    //     if (!err) {
+    //       // console.log("api resp: ", apiResponse);
+    //       await file.getSignedUrl({
+    //         action: "read",
+    //         expires: "03-09-2491",
+    //       });
+    //       async (urlData, err) => {
+    //         if (!err) {
+    //           console.log("public downloadable url: ", urlData[0]); // this is public downloadable url
+    //           try {
+    //             fs.unlinkSync(req.files[0].path); //file removed
+    //           } catch (err) {
+    //             console.error(err);
+    //           }
+    //           await productModel.create(
+    //             {
+    //               productName: body.productName,
+    //               productDescription: body.productDescription,
+    //               productPrice: body.productPrice,
+    //               productImg: urlData[0],
+    //             },
+    //             (err, saved) => {
+    //               if (!err) {
+    //                 console.log("saved");
+    //                 res.send({
+    //                   message: "Your data is saved Successfully",
+    //                 });
+    //               } else {
+    //                 res.status(500).send({
+    //                   message: "error hy koi server ma",
+    //                 });
+    //               }
+    //             }
+    //           );
+    //         } else {
+    //           res.status(500).send({
+    //             message: "serverrr hy koi server ma",
+    //           });
+    //           console.log("errr: ", err);
+    //         }
+    //       };
+    //     } else {
+    //       console.log("err: ", err);
+    //       res.status(500).send("testing");
+    //     }
+    //   }
+    // );
+  
   await db.create(
     {
       productName: body.productName,
@@ -187,10 +179,12 @@ app.listen(port, () => {
 
 //MongoDB
 const dbURI =
-  process.env.MongoDBURI ||
-  "mongodb+srv://shehza-d:web123@cluster0.egqvqca.mongodb.net/ecomme?retryWrites=true&w=majority";
+process.env.MongoDBURI ||
+"mongodb+srv://shehza-d:web123@cluster0.egqvqca.mongodb.net/ecomme?retryWrites=true&w=majority";
 await mongoose.connect(dbURI);
-//await removed
+
+// MongoDB(dbURI)
+
 // //for status of DB
 // ////////////////mongodb connected disconnected events///////////
 mongoose.connection.on(

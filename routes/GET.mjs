@@ -1,4 +1,4 @@
-import db from "../database/model.mjs";
+import {db} from "../database/model.mjs";
 const getAllDataFun = async (req, res) => {
   db.find({}, (err, data) => {
     if (!err) {

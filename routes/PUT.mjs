@@ -1,4 +1,4 @@
-import db from "../database/model.mjs";
+import {db} from "../database/model.mjs";
 
 const editDataFun = async (req, res) => {
   const body = req.body;
