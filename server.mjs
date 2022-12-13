@@ -196,7 +196,7 @@ app.put("/product/:id", async (req, res) => {
     //  1 assending order and -1 for desandaing order
     // console.log(updatedData);
   } catch (err) {
-    console.log("err: ", err);
+    console.log("err: ", err)
     res.status(500).send("server errror product not updated");
   }
 });
