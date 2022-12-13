@@ -13,8 +13,11 @@ const getAllDataFun = async (req, res) => {
     }
   });
 };
-const findOne = () => {
-  productModel.findOne({ _id: id }, (err, data) => {
+
+const searchDataFun = async (req, res) => {
+  // productModel.findOne({ _id: id }, (err, data) => {
+    // productModel.find({ $text: { $search: "laptop" } }, (err, data) => {
+      productModel.find({ productName: req.params.searchTerm  }, (err, data) => {
     if (!err) {
       if (data) {
         res.send({
@@ -29,4 +32,4 @@ const findOne = () => {
     }
   });
 };
-export default getAllDataFun;
+export { getAllDataFun, searchDataFun };

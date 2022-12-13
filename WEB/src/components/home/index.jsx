@@ -18,8 +18,8 @@ import Modal from "@mui/material/Modal";
 // import { auth } from "./firebase-config";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
- import { AiOutlineArrowRight } from "react-icons/ai";
- 
+import { AiOutlineArrowRight } from "react-icons/ai";
+
 const style = {
   position: "absolute",
   top: "50%",
@@ -32,26 +32,26 @@ const style = {
   p: 4,
 };
 
-// let baseURI = "";
-// if (window.location.href.split(":")[0] === "http") {
-//   baseURI = `http://localhost:3003`;
-// } else {
-//   baseURI = `https://e-commerce-store-shehzad.up.railway.app`;
-// }
-const baseURI = `http://localhost:3003`;
+let baseURI = "";
+if (window.location.href.split(":")[0] === "http") {
+  baseURI = `http://localhost:3003`;
+} else {
+  baseURI = `https://e-commerce-store-shehzad.up.railway.app`;
+}
+// const baseURI = `http://localhost:3003`;
 // const baseURI = `https://e-commerce-store-shehzad.up.railway.app`;
 
 export default function Home(props) {
   // Material UI
   const [open, setOpen] = useState(false);
   const handleOpenClose = () => setOpen(!open);
-
   const [loading, setLoading] = useState(false);
   // const [err, setErr] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false); //////
   const [editingProduct, setEditingProduct] = useState(false); //////
   const [productData, setProductData] = useState([]);
   const [toggleRefresh, setToggleRefresh] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
   //geting All Users
   useEffect(() => {
@@ -183,12 +183,14 @@ export default function Home(props) {
       setLoading(true);
       console.log("values: ", values);
       try {
-
-        const res = await axios.put(`${baseURI}/product/${editingProduct._id}`, {
-          name: values.productName,
-          price: values.productPrice,
-          description: values.productDescription,
-        });
+        const res = await axios.put(
+          `${baseURI}/product/${editingProduct._id}`,
+          {
+            name: values.productName,
+            price: values.productPrice,
+            description: values.productDescription,
+          }
+        );
         console.log("response: ", res.data);
         setIsEditMode(!isEditMode);
         setToggleRefresh(!toggleRefresh);
@@ -210,8 +212,9 @@ export default function Home(props) {
     } catch (err) {
       console.log(err);
       toast(`${err.message}`);
+    }finally{
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const editMode = (product) => {
@@ -236,14 +239,67 @@ export default function Home(props) {
     setFieldValue("productImg", e.target.files[0]);
     // console.log(e.target.files);
   };
+  const searchFun = async(e) => {
+    e.preventDefault();
+    setSearchTerm(e.target.value);
+    // console.log(searchTerm.length)
+    // console.log("delete product", id);
+        try {
+      const res = await axios.delete(`${baseURI}/product/${searchTerm}`);
+      console.log("response: ", res.data);
+      // setToggleRefresh(!toggleRefresh);
+      toast(`${res.data.message}`);
+    } catch (err) {
+      console.log(err);
+      toast(`${err.message}`);
+    }finally{
+      setLoading(false);
+    }
+   
+    // for (let i = 0; i < productData.length; i++) {
+    //   for (let j = 0; j < searchTerm.length; j++) {
+    //     if(searchTerm[j]===productData[j].productName){
+    //       console.log('productData[i]');
+    //        }
+    //   }
+    // }
+
+    // console.log(e.target.value)
+
+    //  console.log(
+    // productData.filter((data, i)=>console.log(searchTerm[i],i))//);
+    //data.productName===searchTerm[i]))
+    //       if(data.productName===searchTerm){
+    // console.log("matched");
+    //       }
+    // aarray.indexOf(3);
+    // console.log(productData)
+    // return searchResult;
+  };
   return (
     <>
       <ToastContainer />
       <div className="bgImg">
         <h1>E-Commerce Store</h1>
         <Button variant="contained" onClick={handleOpenClose}>
-          Add Product <AiOutlineArrowRight/>
+          Add Product <AiOutlineArrowRight />
         </Button>
+        <input
+          type="search"
+          placeholder="Search Products..."
+          onChange={searchFun}
+        />
+
+        {/* <form className="formm" onSubmit={searchFun}>
+          <input
+            type="text"
+            id="city"
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search Products..."
+          />
+          <button type="submit">Get Weather</button>
+        </form> */}
+
         <Button variant="contained" onClick={setToggleRefresh}>
           Refresh
         </Button>
