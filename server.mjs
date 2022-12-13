@@ -188,7 +188,7 @@ app.put("/product/:id", async (req, res) => {
         console.log("data ===>", doc);
         res.send({ message: "Product updated Successfully" });
       }
-    );
+    )
 
     // {new:true}
     //new true se new added data return hoga false se purana data mile ga
