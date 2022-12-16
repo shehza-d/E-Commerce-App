@@ -5,8 +5,8 @@ import cors from "cors";
 // import fs from "fs";
 import admin from "firebase-admin";
 import multer from "multer";
-import mongoose from "mongoose";
-
+import mongoose from "mongoose"
+ 
 import {getAllDataFun,searchDataFun} from "./routes/GET.mjs";
 import postDataFun from './routes/POST.mjs'
 // import  from './routes/POST.mjs'
