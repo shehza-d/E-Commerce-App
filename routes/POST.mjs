@@ -1,5 +1,8 @@
 import { productModel } from "../database/model.mjs";
 
+const SECRET = process.env.SECRET || "topsecret";
+
+
 const postDataFun = async (req, res) => {
     const body = req.body;
     // const img:any = req.files[0] ;
