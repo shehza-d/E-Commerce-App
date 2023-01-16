@@ -56,6 +56,8 @@ admin.initializeApp({
 const bucket = admin.storage().bucket("gs://e-commerce-shehzad.appspot.com");
 
 //==============================================
+//jitni files aayi hyn unka array return hoga
+//multer ka saruf itna kam hy file le kar server per ak folder per save kara dena
 // new syntax ==== const upload =multer({ dest: './public/data/upload/'})
 const storageConfig = multer.diskStorage({
   // https://www.npmjs.com/package/multer#diskstorage
@@ -65,7 +67,7 @@ const storageConfig = multer.diskStorage({
     cb(null, `${new Date().getTime()}-${file.originalname}`);
   },
 }); 
-const upload = multer({ storage: storageConfig });
+const upload = multer({ storage: storageConfig });//this is multer middle ware function
 //==============================================
 
 
@@ -96,7 +98,8 @@ app.get("/products", getAllDataFun);
 
 app.get("/product/:searchTerm", searchDataFun);
 
-//to add new product in Database
+//har function ma req,res,next() hota hy
+//to add new product in Database//
 app.post("/product", upload.any(), postDataFun);
 
 // to edit any product in Database
