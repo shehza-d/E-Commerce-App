@@ -120,6 +120,10 @@ export default function Home(props) {
       // console.log(values);//values of formik
       const productImg = document.querySelector("#productImg");
 
+//alternative by anas       const data = new FormData(e.currentTarget); console.log({ email: data.get('email'), password: data.get('email'), });
+      
+      //form values ma saruf string aur file hi ja sagti hy aur kuxh nhi
+      //
       //to send form body instead of JSON body
       let formData = new FormData(); // https://developer.mozilla.org/en-US/docs/Web/API/FormData/append#syntax
       formData.append("productName", values.productName); // this is how you add some text data along with file
