@@ -19,7 +19,7 @@ const postDataFun = async (req, res) => {
     // bucket.upload(
     //   req.files[0].path,
     //   {
-    //     destination:
+    //     destination:  //this is directory where the file is going to be save with this name 
     //     `productPhotos/${new Date().getTime()}-${req.files[0].originalname}`,
     //   },
     //   async (err, file, apiResponse) => {
